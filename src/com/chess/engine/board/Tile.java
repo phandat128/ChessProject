@@ -9,7 +9,7 @@ public abstract class Tile {
 
     protected final int tileCoordinate; //the position of tile in the board (from 0 to 63)
 
-    protected Tile(int tileCoordinate){
+    protected Tile(final int tileCoordinate){
         this.tileCoordinate = tileCoordinate;
     }
 
@@ -18,7 +18,7 @@ public abstract class Tile {
     private static Map<Integer, EmptyTile> createAllPossibleEmptyTile(){
         final Map<Integer, EmptyTile> emptyTileMap = new HashMap<>();
 
-        for (int i = 0; i < 64; i++) {
+        for (int i = 0; i < BoardUtils.NUM_TILES; i++) {
             emptyTileMap.put(i, new EmptyTile(i));
         }
         return emptyTileMap;
@@ -28,7 +28,7 @@ public abstract class Tile {
         return piece != null ? new OccupiedTile(tileCoordinate, piece) : EMPTY_TILES_CACHE.get(tileCoordinate);
     }
 
-    public abstract boolean isOccupied();
+    public abstract boolean isTileOccupied();
 
     public abstract Piece getPiece();
 }

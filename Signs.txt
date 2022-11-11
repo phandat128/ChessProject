@@ -1,0 +1,2 @@
+Some signs in the code:
+// ****         : replaced

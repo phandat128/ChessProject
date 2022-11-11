@@ -6,13 +6,13 @@ public final class OccupiedTile extends Tile{
 
     private final Piece pieceOnTile;
 
-    OccupiedTile(int tileCoordinate, Piece pieceOnTile){
+    OccupiedTile(int tileCoordinate, final Piece pieceOnTile){
         super(tileCoordinate);
         this.pieceOnTile = pieceOnTile;
     }
 
     @Override
-    public boolean isOccupied() {
+    public boolean isTileOccupied() {
         return true;
     }
 
