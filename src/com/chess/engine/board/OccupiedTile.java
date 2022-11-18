@@ -4,7 +4,7 @@ import com.chess.engine.pieces.Piece;
 
 public final class OccupiedTile extends Tile{
 
-    private final Piece pieceOnTile;
+    private final Piece pieceOnTile; //loại quân cờ trên ô
 
     OccupiedTile(int tileCoordinate, final Piece pieceOnTile){
         super(tileCoordinate);

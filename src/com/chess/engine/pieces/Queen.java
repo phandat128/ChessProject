@@ -12,8 +12,8 @@ import java.util.List;
 
 public class Queen extends Piece{
     private  final static int[] CANDIDATE_MOVE_VECTOR_COORDINATES={-9,-8,-7,-1,1,7,8,9};
-    Queen(int piecePosition, Alliance pieceAlliance) {
-        super(piecePosition, pieceAlliance);
+    public Queen(int piecePosition, Alliance pieceAlliance) {
+        super(PieceType.QUEEN, piecePosition, pieceAlliance);
     }
 
     @Override
@@ -22,19 +22,14 @@ public class Queen extends Piece{
         final List<Move> legalMoves = new ArrayList<>();
 
         for(final int candidateCoordinateOffset: CANDIDATE_MOVE_VECTOR_COORDINATES){
-
             int candidateDestinationCoordinate = this.piecePosition;
-
             while(BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate)) {
-
                 // Khi di den cac diem gioi han thi dung lai
                 if(isFirstColumnExclusion(candidateDestinationCoordinate,candidateCoordinateOffset) ||
                         isEightColumnExclusion(candidateDestinationCoordinate,candidateCoordinateOffset)){
                     break;
                 }
-
                 candidateDestinationCoordinate += candidateCoordinateOffset;
-
                 if (BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate)) {
                     final Tile candidateDestinationTile = board.getTile(candidateDestinationCoordinate);
                     if (!candidateDestinationTile.isTileOccupied()) {
@@ -51,6 +46,15 @@ public class Queen extends Piece{
             }
         }
         return legalMoves;
+    }
+
+    @Override
+    public Queen movePiece(Move move) {
+        return new Queen(move.getDestinationCoordinate(), move.getmovedPiece().getPieceAlliance());
+    }
+
+    public String toString() {
+        return PieceType.QUEEN.toString();
     }
     // Neu la cot 1 va buoc di chuyen la ( di cheo len tren ve phia ben trai || di chuyen xuong duoi ve phia ben trai || di sang trai)
     private static boolean isFirstColumnExclusion(final int currentPosition , final int candidateOffset){

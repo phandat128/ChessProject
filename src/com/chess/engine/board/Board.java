@@ -158,7 +158,7 @@ public class Board {
         }
 
         public void setEnPassantPawn(Pawn enPassantPawn) {
-            this.enPassantPawn = 
+            this.enPassantPawn = enPassantPawn;
         }
     }
 }
