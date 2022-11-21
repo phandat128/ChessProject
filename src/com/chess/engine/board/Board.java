@@ -15,6 +15,7 @@ public class Board {
     private final List<Tile> gameBoard;
     private final Collection<Piece> blackPieces;
     private final Collection<Piece> whitePieces;
+
     private final WhitePlayer whitePlayer;
     private final BlackPlayer blackPlayer;
     private final Player currentPlayer;
@@ -23,11 +24,13 @@ public class Board {
         this.gameBoard = createGameBoard(builder);
         this.blackPieces = calculateActivePiece(this.gameBoard, Alliance.BLACK);
         this.whitePieces = calculateActivePiece(this.gameBoard, Alliance.WHITE);
+
         final Collection<Move> whiteStandardLegalMove = calculateLegalMove(this.whitePieces);
         final Collection<Move> blackStandardLegalMove = calculateLegalMove(this.blackPieces);
+
         this.whitePlayer = new WhitePlayer(this, whiteStandardLegalMove, blackStandardLegalMove);
         this.blackPlayer = new BlackPlayer(this, blackStandardLegalMove, whiteStandardLegalMove);
-        this.currentPlayer = builder.nextMoveMaker.choosePlayer(this.whitePlayer, this.blackPlayer);
+        this.currentPlayer = null;
     }
 
     public String toString(){
