@@ -18,14 +18,16 @@ public abstract class Player {
 
     private final boolean isInCheck;
 
-    Player(final Board board, final Collection<Move> myLegalMoves, final Collection<Move> opponentMoves){
+    Player(final Board board,final Collection<Move> myLegalMoves, final Collection<Move> opponentMoves){
         this.board = board;
         this.playerKing = establishKing();
+        // this.legalMoves = Iterables.concat(myLegalMoves,calculateKingCastles(myLegalMoves, opponentMoves));
         this.legalMoves = myLegalMoves;
+        this.legalMoves.addAll(calculateKingCastles(myLegalMoves, opponentMoves));
         this.isInCheck = !Player.calculateAttacksOnTile(this.playerKing.getPiecePosition(), opponentMoves).isEmpty();
     }
 
-    private static Collection<Move> calculateAttacksOnTile(int piecePosition, Collection<Move> opponentMoves) {
+    protected static Collection<Move> calculateAttacksOnTile(int piecePosition, Collection<Move> opponentMoves) {
     //returns a collection of opponent's moves which attack the piece at {piecePosition}
         final List<Move> attackMoves = new ArrayList<>();
         for (final Move move: opponentMoves){
@@ -111,4 +113,5 @@ public abstract class Player {
     public abstract Collection<Piece> getActivePieces();
     public abstract Alliance getAlliance();
     public abstract Player getOpponent();
+    protected abstract Collection<Move> calculateKingCastles(Collection<Move> playerLegals, Collection<Move> OpponentLegals);
 }

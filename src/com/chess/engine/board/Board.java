@@ -30,7 +30,7 @@ public class Board {
 
         this.whitePlayer = new WhitePlayer(this, whiteStandardLegalMove, blackStandardLegalMove);
         this.blackPlayer = new BlackPlayer(this, blackStandardLegalMove, whiteStandardLegalMove);
-        this.currentPlayer = null;
+        this.currentPlayer = builder.nextMoveMaker.choosePlayer(this.whitePlayer, this.blackPlayer);
     }
 
     public String toString(){
@@ -141,6 +141,7 @@ public class Board {
     public static class Builder {
         Map<Integer, Piece> boardConfig;
         Alliance nextMoveMaker;
+        Pawn enPassantPawn;
 
         public Builder(){
             this.boardConfig = new HashMap<>();
