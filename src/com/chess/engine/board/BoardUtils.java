@@ -1,7 +1,6 @@
 package com.chess.engine.board;
 
 public class BoardUtils {
-
     public static final boolean[] FIRST_COLUMN = initColumn(0); //cột 1, tọa độ ô đầu là 0
     public static final boolean[] SECOND_COLUMN = initColumn(1); //cột 2, tọa độ ô đầu là 1
     public static final boolean[] SEVENTH_COLUMN = initColumn(6); //cột 7, tọa độ ô đầu là 6

@@ -32,7 +32,7 @@ public class Table {
     private final static Dimension OUTER_FRAME_DIMENSION = new Dimension(600,600);
     private final static Dimension BOARD_PANEL_DIMENSION = new Dimension(400,350);
     private final static Dimension TILE_PANEL_DIMENSION = new Dimension(10,10);
-    private static String defaultPieceImagesPath = "art/plain";
+    private static String defaultPieceImagesPath = "art/plain/";
     private final JMenuBar tableMenuBar;
     private final Color lightTileColor = Color.decode("#FFFACD");
     private final Color darkTileColor = Color.decode("#593E1A");
@@ -152,7 +152,7 @@ public class Table {
                 try{
                     final BufferedImage image =
                             ImageIO.read(new File(defaultPieceImagesPath + board.getTile(this.titleId).getPiece().getPieceAlliance().toString().substring(0,1)+
-                                    board.getTile(this.titleId).getPiece().toString()+".gif"      ));
+                                    board.getTile(this.titleId).getPiece().toString()+".gif"));
                     add (new JLabel(new ImageIcon(image)) );
                 } catch (IOException e){
                     e.printStackTrace();}
@@ -169,9 +169,9 @@ public class Table {
                 if (BoardUtils.SEVENTH_RANK[this.titleId] ||
                         BoardUtils.FIFTH_RANK[this.titleId] ||
                         BoardUtils.THIRD_RANK[this.titleId] ||
-                        BoardUtils.FIFTH_RANK[this.titleId]
+                        BoardUtils.FIRST_RANK[this.titleId]
                 )
-                setBackground(this.titleId % 2 ==0 ? lightTileColor : darkTileColor);
+                setBackground(this.titleId % 2 !=0 ? lightTileColor : darkTileColor);
             }
         }
     }
