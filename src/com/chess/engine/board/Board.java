@@ -136,7 +136,8 @@ public class Board {
     }
 
     public Iterable<Move> getAllLegalMoves() {
-        return (Iterable<Move>) Stream.concat(this.whitePlayer.getLegalMoves().stream(), this.blackPlayer.getLegalMoves().stream());
+        return Stream.concat(this.whitePlayer.getLegalMoves().stream(),
+                            this.blackPlayer.getLegalMoves().stream()).toList();
     }
     public static class Builder {
         Map<Integer, Piece> boardConfig;

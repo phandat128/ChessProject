@@ -1,7 +1,7 @@
-package com.chess.engine;
+package com.chess;
 
 import com.chess.engine.board.Board;
-import com.chess.engine.gui.Table;
+import com.chess.gui.Table;
 
 public class JChess {
     public static void main(String [] args){

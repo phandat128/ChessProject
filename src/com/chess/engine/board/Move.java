@@ -130,10 +130,10 @@ public abstract class Move {
             return super.equals(otherAttackMove) && getAttackedPiece().equals(otherAttackMove.getAttackedPiece()); 
         }
 
-        @Override
-        public Board execute() {
-            return null;
-        }
+//        @Override
+//        public Board execute() {
+//            return null;
+//        }
         
         @Override
         public boolean isAttack() {
@@ -234,7 +234,7 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return "0-0";
+            return "O-O";
         }
     }
 
@@ -245,13 +245,22 @@ public abstract class Move {
 
         @Override
         public String toString() {
-            return "0-0";
+            return "O-O-O";
         }
     }
 
     public static final class NullMove extends Move {
         public NullMove() {
-            super(null, null, -1);
+            super(null, -1);
+        }
+        @Override
+        public int getCurrentCoordinate() {
+            return -1;
+        }
+
+        @Override
+        public int getDestinationCoordinate() {
+            return -1;
         }
 
         @Override
