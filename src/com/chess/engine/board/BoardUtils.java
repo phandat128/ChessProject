@@ -52,12 +52,8 @@ public class BoardUtils {
 		return coordinate >=0 && coordinate < NUM_TILES;
 	}
 
-    public static int getCoordinateAtPosition(final String position) {
-        return POSITION_TO_COORDINATE.get(position);
-    }
-
     private static String[] initializeAlgebraicNotation(){
-        final String[] algebraicNotation = {
+        return new String[] {
                 "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
                 "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
                 "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
@@ -66,8 +62,7 @@ public class BoardUtils {
                 "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
                 "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
                 "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1"
-                };
-        return algebraicNotation;
+        };
     }
 
     private static Map<String, Integer> initializePositionToCoordinate(){
@@ -78,6 +73,9 @@ public class BoardUtils {
         return Collections.unmodifiableMap(positionToCoordinate);
     }
 
+    public static int getCoordinateAtPosition(final String position){
+        return POSITION_TO_COORDINATE.get(position);
+    }
 
     public static String getPositionAtCoordinate(final int coordinate) {
         return ALGEBRAIC_NOTATION[coordinate];
