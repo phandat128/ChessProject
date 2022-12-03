@@ -52,7 +52,7 @@ public class Bishop extends Piece{
                         final Piece pieceAtDestination = candidateDestinationTile.getPiece();
                         final Alliance pieceAlliance = pieceAtDestination.getPieceAlliance();//lấy màu quân cờ đang chiếm ô dự kiến đến
                         if (this.pieceAlliance != pieceAlliance) {
-                            legalMoves.add(new AttackMove(board, this, candidateDestinationCoordinate, pieceAtDestination));
+                            legalMoves.add(new MajorAttackMove(board, this, candidateDestinationCoordinate, pieceAtDestination));
                         } //nếu khác màu quân cờ, thêm vào danh sách nước hợp lệ
                         break;
                     }

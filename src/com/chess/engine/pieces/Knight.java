@@ -43,7 +43,7 @@ public class Knight extends Piece{
 					final Piece pieceAtDestination = candidateDestinationTile.getPiece();						//lấy quân chiếm ô đó
 					final Alliance pieceAlliance = pieceAtDestination.getPieceAlliance();						//lấy thuộc tính Màu quân
 					if(this.pieceAlliance != pieceAlliance) {													//nếu màu quân chiếm khác màu quân đi nước đó
-						legalMoves.add(new Move.AttackMove(board, this, candidateDestinationCoordinate, pieceAtDestination));//nước đi đến ô đó là hợp lệ
+						legalMoves.add(new Move.MajorAttackMove(board, this, candidateDestinationCoordinate, pieceAtDestination));//nước đi đến ô đó là hợp lệ
 					}
 				}
 			}

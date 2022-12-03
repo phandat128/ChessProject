@@ -224,6 +224,7 @@ public class Table {
             addMouseListener(new MouseListener() {
                 @Override
                 public void mouseClicked(final MouseEvent e) {
+                	
                 if (isRightMouseButton(e)){
                     sourceTile = null;
                     destinationTile = null;
