@@ -27,13 +27,16 @@ public class Queen extends Piece{
 
         for(final int candidateCoordinateOffset: CANDIDATE_MOVE_VECTOR_COORDINATES){
             int candidateDestinationCoordinate = this.piecePosition;
-            while(BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate)) {
+            while(true) {
                 // Khi di den cac diem gioi han thi dung lai
                 if(isFirstColumnExclusion(candidateDestinationCoordinate,candidateCoordinateOffset) ||
                         isEightColumnExclusion(candidateDestinationCoordinate,candidateCoordinateOffset)){
                     break;
                 }
                 candidateDestinationCoordinate += candidateCoordinateOffset;
+
+                if(!BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate)) break;
+
                 if (BoardUtils.isValidTileCoordinate(candidateDestinationCoordinate)) {
                     final Tile candidateDestinationTile = board.getTile(candidateDestinationCoordinate);
                     if (!candidateDestinationTile.isTileOccupied()) {
@@ -62,10 +65,10 @@ public class Queen extends Piece{
     }
     // Neu la cot 1 va buoc di chuyen la ( di cheo len tren ve phia ben trai || di chuyen xuong duoi ve phia ben trai || di sang trai)
     private static boolean isFirstColumnExclusion(final int currentPosition , final int candidateOffset){
-        return BoardUtils.FIRST_COLUMN[currentPosition] && (candidateOffset==-1 || candidateOffset == -9 || candidateOffset == 7);
+        return BoardUtils.FIRST_COLUMN[currentPosition] && ((candidateOffset==-1) || (candidateOffset == -9) || (candidateOffset == 7));
     }
     // Neu la cot 8 va buoc di chuyen la (di chuyen len tren ve phia ben phai || di chuyen xuong duoi ve phia ben phai || di sang phai)
     private static boolean isEightColumnExclusion(final int currentPosition , final int candidateOffset){
-        return BoardUtils.EIGHTH_COLUMN[currentPosition] && (candidateOffset==1 || candidateOffset == -7 || candidateOffset == 9);
+        return BoardUtils.EIGHTH_COLUMN[currentPosition] && ((candidateOffset==1) || (candidateOffset == -7) || (candidateOffset == 9));
     }
 }

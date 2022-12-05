@@ -68,6 +68,7 @@ public class Table {
         this.gameFrame.add(this.boardPanel,BorderLayout.CENTER);
         this.gameFrame.add(this.gameHistoryPanel, BorderLayout.EAST);
         this.gameFrame.setVisible(true);
+        this.highlightLegalMoves=false;
     }
 
 
@@ -173,6 +174,7 @@ public class Table {
             removeAll();
             for(final TilePanel tilePanel: boardDirection.traverse(boardTiles)) {
                 tilePanel.drawTile(board);
+                tilePanel.highlightLegals(board);
                 add(tilePanel);
             }
             validate();
@@ -234,9 +236,9 @@ public class Table {
                        if (sourceTile == null){
                            sourceTile = chessBoard.getTile(titleId);
                            humanMovedPiece = sourceTile.getPiece();
-                       if (humanMovedPiece == null)
-                       sourceTile = null;
-                       }else {
+                       if (humanMovedPiece == null) sourceTile = null;
+                       }
+                       else {
                            destinationTile = chessBoard.getTile(titleId);
                            final Move move = Move.MoveFactory.createMove(chessBoard, sourceTile.getTileCoordinate(), destinationTile.getTileCoordinate());
                            final MoveTransition transition = chessBoard.currentPlayer().makeMove(move);
