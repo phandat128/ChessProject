@@ -48,6 +48,8 @@ public class Table {
     private final JMenuBar tableMenuBar;
     private final Color lightTileColor = Color.decode("#FFFACD");
     private final Color darkTileColor = Color.decode("#593E1A");
+    private final Color lightTileColorHightlight = Color.decode("#f7e88b");
+    private final Color darkTileColorHightlight = Color.decode("#b0a563");
 
 
     public Table() {
@@ -174,7 +176,6 @@ public class Table {
             removeAll();
             for(final TilePanel tilePanel: boardDirection.traverse(boardTiles)) {
                 tilePanel.drawTile(board);
-                tilePanel.highlightLegals(board);
                 add(tilePanel);
             }
             validate();
@@ -221,7 +222,7 @@ public class Table {
             super(new GridLayout());
             this.titleId = titleId;
             setPreferredSize(TILE_PANEL_DIMENSION);
-            assignTileColor();
+            assignTileColor(chessBoard);
             assignTilePieceIcon(chessBoard);
             addMouseListener(new MouseListener() {
                 @Override
@@ -287,15 +288,17 @@ public class Table {
         }
 
         public void drawTile(final Board board){
-            assignTileColor();
+            assignTileColor(board);
             assignTilePieceIcon(board);
             validate();
             repaint();
         }
+        //
         private void assignTilePieceIcon (final Board board){
             this.removeAll();
             if (board.getTile(this.titleId).isTileOccupied()){
                 try{
+                    highlightLegals(board);
                     final BufferedImage image =
                             ImageIO.read(new File(defaultPieceImagesPath + board.getTile(this.titleId).getPiece().getPieceAlliance().toString().substring(0,1)+
                                     board.getTile(this.titleId).getPiece().toString()+".gif"));
@@ -310,7 +313,23 @@ public class Table {
                 for (final Move move: pieceLegalMove(board)) {
                     if (move.getDestinationCoordinate() == this.titleId) {
                         try {
-                            add(new JLabel(new ImageIcon(ImageIO.read(new File("art/misc/green_dot.png")))));
+                            /*add(new JLabel(new ImageIcon(ImageIO.read(new File("art/misc/green_dot.png")))));*/
+                                if(     BoardUtils.EIGHTH_RANK[this.titleId] ||
+                                        BoardUtils.SIXTH_RANK[this.titleId] ||
+                                        BoardUtils.FOURTH_RANK[this.titleId] ||
+                                        BoardUtils.SECOND_RANK[this.titleId] ){
+                                        setBackground(this.titleId % 2 ==0 ? lightTileColorHightlight : darkTileColorHightlight);
+                                }
+                            else{
+                                if (    BoardUtils.SEVENTH_RANK[this.titleId] ||
+                                        BoardUtils.FIFTH_RANK[this.titleId] ||
+                                        BoardUtils.THIRD_RANK[this.titleId] ||
+                                        BoardUtils.FIRST_RANK[this.titleId]
+                                ){
+                                        setBackground(Color.RED);
+                                        setBackground(this.titleId % 2 !=0 ? lightTileColorHightlight : darkTileColorHightlight);
+                                }
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -324,20 +343,25 @@ public class Table {
             }
             return Collections.emptyList();
         }
-        private void assignTileColor() {
+        private void assignTileColor(Board board) {
             if(     BoardUtils.EIGHTH_RANK[this.titleId] ||
                     BoardUtils.SIXTH_RANK[this.titleId] ||
                     BoardUtils.FOURTH_RANK[this.titleId] ||
                     BoardUtils.SECOND_RANK[this.titleId] ){
-                setBackground(this.titleId % 2 ==0 ? lightTileColor : darkTileColor);
+
+                    setBackground(this.titleId % 2 ==0 ? lightTileColor : darkTileColor);
+
+                    highlightLegals(board);
             }
             else{
-                if (BoardUtils.SEVENTH_RANK[this.titleId] ||
+                if (    BoardUtils.SEVENTH_RANK[this.titleId] ||
                         BoardUtils.FIFTH_RANK[this.titleId] ||
                         BoardUtils.THIRD_RANK[this.titleId] ||
-                        BoardUtils.FIRST_RANK[this.titleId]
-                )
-                setBackground(this.titleId % 2 !=0 ? lightTileColor : darkTileColor);
+                        BoardUtils.FIRST_RANK[this.titleId]) {
+                    setBackground(this.titleId % 2 !=0 ? lightTileColor : darkTileColor);
+
+                    highlightLegals(board);
+                }
             }
         }
     }
