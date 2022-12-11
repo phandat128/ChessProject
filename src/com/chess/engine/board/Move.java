@@ -319,27 +319,22 @@ public abstract class Move {
     }
 
     static abstract class CastleMove extends Move {
-
         protected final Rook castleRook;
         protected final int castleRookStart;
         protected final int castleRookDestination;
-
         public CastleMove(final Board board, final Piece movedPiece, final int destinationCoordinate, final Rook castleRook, final int castleRookStart, final int castleRookDestination) {
             super(board, movedPiece, destinationCoordinate);
             this.castleRook =castleRook;
             this.castleRookStart = castleRookStart;
             this.castleRookDestination = castleRookDestination;
         }
-
         public Rook getCastleRook() {
             return this.castleRook;
         }
-
         @Override
         public boolean isCastlingMove() {
             return true;
         }
-
         @Override
         public Board execute() {
             final Builder builder = new Builder();
@@ -356,7 +351,6 @@ public abstract class Move {
             builder.setMoveMaker(this.board.currentPlayer().getOpponent().getAlliance());
             return builder.build();
         }
-        
         @Override
         public int hashCode() {
         	final int prime = 31;
@@ -365,7 +359,6 @@ public abstract class Move {
             result = prime * result + this.destinationCoordinate;
             return result;
         }
-        
         @Override
         public boolean equals(final Object other) {
             if (this == other) {
@@ -377,13 +370,10 @@ public abstract class Move {
             final CastleMove otherCastleMove = (CastleMove) other;
             return super.equals(otherCastleMove) && this.castleRook.equals(otherCastleMove.getCastleRook());
         }
-
         @Override
         public String toString () {
             return movedPiece.getPieceType() + BoardUtils.getPositionAtCoordinate(this.destinationCoordinate);
         }
-        
-        
     }
 
     public static final class KingSideCastleMove extends CastleMove {
