@@ -5,6 +5,8 @@ import com.chess.engine.board.Board;
 import com.chess.engine.board.BoardUtils;
 import com.chess.engine.board.Move;
 import com.chess.engine.board.Tile;
+import com.chess.engine.player.BlackPlayer;
+import com.chess.engine.player.WhitePlayer;
 
 import java.util.List;
 import java.util.ArrayList;
