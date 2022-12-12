@@ -23,7 +23,7 @@ public class TakenPiecesPanel extends JPanel {
     private final JPanel southPanel;
 
     private static final EtchedBorder PANEL_BORDER = new EtchedBorder(EtchedBorder.RAISED);
-    private static final Dimension TAKEN_PIECES_DIMENSION = new Dimension(40,80);
+    private static final Dimension TAKEN_PIECES_DIMENSION = new Dimension(60,80);
     private static final Color PANEL_COLOR = Color.decode("0xFDF5E6");
 
     public TakenPiecesPanel (){
@@ -78,10 +78,10 @@ public class TakenPiecesPanel extends JPanel {
         for (final Piece takenPiece: whiteTakenPieces){
             try {
                 final BufferedImage image = ImageIO.read(new File("art/plain/"
-                        + takenPiece.getPieceAlliance().toString().substring(0,1) + takenPiece.toString() + ".gif"));
+                        + takenPiece.getPieceAlliance().toString().charAt(0) + takenPiece + ".png"));
                 final ImageIcon icon = new ImageIcon(image);
                 final JLabel imageLabel = new JLabel(new ImageIcon(icon.getImage().getScaledInstance(
-                        icon.getIconWidth() - 15, icon.getIconWidth() - 15, Image.SCALE_SMOOTH)));
+                        icon.getIconWidth() - 30, icon.getIconWidth() - 30, Image.SCALE_SMOOTH)));
                 this.southPanel.add(imageLabel);
             } catch(final IOException e){
                 e.printStackTrace();
@@ -91,10 +91,10 @@ public class TakenPiecesPanel extends JPanel {
         for (final Piece takenPiece: blackTakenPieces){
             try {
                 final BufferedImage image = ImageIO.read(new File("art/plain/"
-                        + takenPiece.getPieceAlliance().toString().substring(0,1) + takenPiece.toString() + ".gif"));
+                        + takenPiece.getPieceAlliance().toString().charAt(0) + takenPiece + ".png"));
                 final ImageIcon icon = new ImageIcon(image);
                 final JLabel imageLabel = new JLabel(new ImageIcon(icon.getImage().getScaledInstance(
-                        icon.getIconWidth() - 15, icon.getIconWidth() - 15, Image.SCALE_SMOOTH)));
+                        icon.getIconWidth() - 30, icon.getIconWidth() - 30, Image.SCALE_SMOOTH)));
                 this.northPanel.add(imageLabel);
             } catch(final IOException e){
                 e.printStackTrace();
