@@ -13,7 +13,7 @@ class GameSetup extends JDialog {
 
     private PlayerType whitePlayerType;
     private PlayerType blackPlayerType;
-    private JSpinner searchDepthSpinner;
+    private static JSpinner searchDepthSpinner;
 
     private static final String HUMAN_TEXT = "Human";
     private static final String COMPUTER_TEXT = "Computer";
@@ -105,7 +105,7 @@ class GameSetup extends JDialog {
         return spinner;
     }
 
-    int getSearchDepth() {
-        return (Integer)this.searchDepthSpinner.getValue();
+    public static int getSearchDepth() {
+        return (Integer) searchDepthSpinner.getValue();
     }
 }

@@ -7,7 +7,7 @@ import com.chess.engine.player.MoveTransition;
 public class MiniMax implements MoveStrategy{
     private final BoardEvaluator boardEvaluator;
     private final int searchDepth;
-    public MiniMax(final int searchDepth){
+    public MiniMax(int searchDepth){
         this.boardEvaluator= new StandarBoardEvaluator();
         this.searchDepth = searchDepth;
     }

@@ -44,15 +44,15 @@ public class Table extends Observable {
 
     private boolean highlightLegalMoves;
 
-    private final static Dimension OUTER_FRAME_DIMENSION = new Dimension(600,600);
-    private final static Dimension BOARD_PANEL_DIMENSION = new Dimension(400,350);
+    private final static Dimension OUTER_FRAME_DIMENSION = new Dimension(800,800);
+    private final static Dimension BOARD_PANEL_DIMENSION = new Dimension(300,300);
     private final static Dimension TILE_PANEL_DIMENSION = new Dimension(10,10);
     private static String defaultPieceImagesPath = "art/plain/";
     private final JMenuBar tableMenuBar;
-    private final Color lightTileColor = Color.decode("#FFFACD");
-    private final Color darkTileColor = Color.decode("#593E1A");
-    private final Color lightTileColorHightlight = Color.decode("#f7e88b");
-    private final Color darkTileColorHightlight = Color.decode("#b0a563");
+    private final Color lightTileColor = Color.decode("#f0d9b5");
+    private final Color darkTileColor = Color.decode("#b58863");
+    private final Color lightTileColorHightlight = Color.decode("#cdd26a");
+    private final Color darkTileColorHightlight = Color.decode("#aaa23a");
 
     private static final Table INSTANCE = new Table();
     private Table() {
@@ -217,7 +217,7 @@ public class Table extends Observable {
         }
         @Override
         protected Move doInBackground() throws Exception {
-            final MoveStrategy miniMax = new MiniMax(4);
+            final MoveStrategy miniMax = new MiniMax(GameSetup.getSearchDepth());
             final Move bestMove = miniMax.execute(Table.get().getGameBoard());
             return bestMove;
         }
@@ -416,7 +416,7 @@ public class Table extends Observable {
                     highlightLegals(board);
                     final BufferedImage image =
                             ImageIO.read(new File(defaultPieceImagesPath + board.getTile(this.titleId).getPiece().getPieceAlliance().toString().substring(0,1)+
-                                    board.getTile(this.titleId).getPiece().toString()+".gif"));
+                                    board.getTile(this.titleId).getPiece().toString()+".png"));
                     add (new JLabel(new ImageIcon(image)) );
                 } catch (IOException e){
                     e.printStackTrace();}
