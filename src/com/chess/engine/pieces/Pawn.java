@@ -99,7 +99,15 @@ public class Pawn extends Piece{
     }
 
     public Piece getPromotionPiece() {
-    	return new Queen(this.piecePosition, this.pieceAlliance, false);
+        new PromoteFrame();
+        int promoteChoice = PromoteFrame.promoteChoice;
+        return switch (promoteChoice) {
+            case 1 -> new Knight(this.piecePosition, this.pieceAlliance, false);
+            case 2 -> new Bishop(this.piecePosition, this.pieceAlliance, false);
+            case 3 -> new Rook(this.piecePosition, this.pieceAlliance, false);
+            case 4 -> new Queen(this.piecePosition, this.pieceAlliance, false);
+            default -> null;
+        };
     }
 
 }
