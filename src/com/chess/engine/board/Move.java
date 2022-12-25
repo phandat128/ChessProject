@@ -1,10 +1,8 @@
 package com.chess.engine.board;
 
-import com.chess.engine.pieces.Pawn;
-import com.chess.engine.pieces.Piece;
+import com.chess.engine.pieces.*;
 import com.chess.engine.board.Board.Builder;
-import com.chess.engine.pieces.PromoteFrame;
-import com.chess.engine.pieces.Rook;
+import com.chess.gui.PromoteFrame;
 
 public abstract class Move {
 
@@ -240,11 +238,13 @@ public abstract class Move {
     	
     	final Move decoratedMove;
     	final Pawn promotedPawn;
+        final Piece promotionPiece;
     	
-    	public PawnPromotion(final Move decoratedMove) {
+    	public PawnPromotion(final Move decoratedMove, final Piece promotionPiece) {
     		super(decoratedMove.getBoard(), decoratedMove.getMovedPiece(), decoratedMove.getDestinationCoordinate());
     		this.decoratedMove = decoratedMove;
     		this.promotedPawn = (Pawn) decoratedMove.getMovedPiece();
+            this.promotionPiece = promotionPiece;
     	}
     	
     	@Override
@@ -269,11 +269,12 @@ public abstract class Move {
             for(final Piece piece : pawnMovedBoard.currentPlayer().getOpponent().getActivePieces()) {
             	builder.setPiece(piece);
             }
-            
-            builder.setPiece(this.promotedPawn.getPromotionPiece().movePiece(this));
+            //////TODO MORE
+            builder.setPiece(promotionPiece);
             builder.setMoveMaker(pawnMovedBoard.currentPlayer().getAlliance());
             return builder.build();
         }
+
     	
     	@Override
     	public boolean isAttack()
@@ -288,13 +289,7 @@ public abstract class Move {
     	
     	@Override
         public String toString() {
-            int promoteChoice = PromoteFrame.promoteChoice;
-
-            if (promoteChoice == 1) return BoardUtils.getPositionAtCoordinate(this.destinationCoordinate) + "=" + "N";
-            if (promoteChoice == 2) return BoardUtils.getPositionAtCoordinate(this.destinationCoordinate) + "=" + "B";
-            if (promoteChoice == 3) return BoardUtils.getPositionAtCoordinate(this.destinationCoordinate) + "=" + "R";
-            if (promoteChoice == 4) return BoardUtils.getPositionAtCoordinate(this.destinationCoordinate) + "=" + "Q";
-            else return null;
+            return BoardUtils.getPositionAtCoordinate(this.destinationCoordinate) + "=" + promotionPiece.toString();
         }
     }
 

@@ -1,8 +1,12 @@
 package com.chess.engine.player.al;
 import com.chess.engine.Alliance;
 import com.chess.engine.board.Board;
+import com.chess.engine.board.Move;
 import com.chess.engine.pieces.Piece;
 import com.chess.engine.player.Player;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class StandardBoardEvaluator implements BoardEvaluator {
      private static final int CHECK_BONUS = 50;
@@ -21,7 +25,7 @@ public class StandardBoardEvaluator implements BoardEvaluator {
                             final int depth) {
         return pieceValue(player) + mobility(player) + 
                 check(player)+ checkmate(player, depth) 
-                + castled(player) + positionValue(player);
+                + castled(player) + positionValue(player) + openingPrincipleBonus(player, board);
     }
 
     private static int castled (Player player) {
@@ -46,13 +50,93 @@ public class StandardBoardEvaluator implements BoardEvaluator {
 
     private static int pieceValue(final Player player){
         int pieceValueScore = 0;
-        for (final Piece piece: player.getActivePieces()){
-            pieceValueScore += piece.getPieceValue();
+        if (isMidGame(player)) {
+            for (final Piece piece: player.getActivePieces()){
+                pieceValueScore += piece.getPieceType().mgPieceValue;
+            }
+        }
+        else {
+            for (final Piece piece: player.getActivePieces()) {
+                pieceValueScore += piece.getPieceType().egPieceValue;
+            }
         }
         return pieceValueScore;
     }
     private static int positionValue(final Player player) {
         int positionValueScore = 0;
+
+        if (player.getAlliance() == Alliance.BLACK) {
+            if (isMidGame(player)) {
+                for (final Piece piece: player.getActivePieces()) {
+                    positionValueScore += piece.getPieceType().mgValueTable[piece.getPiecePosition()];
+                }
+            } else {
+                for (final Piece piece: player.getActivePieces()) {
+                    positionValueScore += piece.getPieceType().egValueTable[piece.getPiecePosition()];
+                }
+            }
+        }
+        else if (player.getAlliance() == Alliance.WHITE){
+            if (isMidGame(player)) {
+                for (final Piece piece: player.getActivePieces()) {
+                    positionValueScore += piece.getPieceType().mgValueTable[(piece.getPiecePosition())^56];
+                }
+            } else {
+                for (final Piece piece: player.getActivePieces()) {
+                    positionValueScore += piece.getPieceType().egValueTable[(piece.getPiecePosition())^56];
+                }
+            }
+        }
+
+        return positionValueScore;
+    }
+
+    private static int openingPrincipleBonus(Player player, Board board) {
+        int openingPrincipleBonus = 0;
+        if (Counter.count <= 15) {
+            for (final Piece piece: player.getActivePieces()) {
+                for (final Move move: piece.calculateLegalMove(board)) {
+                    if (move.getDestinationCoordinate() == 28 ||
+                        move.getDestinationCoordinate() == 29 ||
+                        move.getDestinationCoordinate() == 36 ||
+                        move.getDestinationCoordinate() == 37) {
+                        openingPrincipleBonus += 3;
+                    }
+                }
+                if (piece.getPieceType() == Piece.PieceType.KING) {
+                    if (piece.getPieceAlliance() == Alliance.BLACK) {
+                        if (piece.getPiecePosition() != 4 || piece.getPiecePosition() != 6 || piece.getPiecePosition() != 2)
+                            openingPrincipleBonus -= 50;
+                    } else if (piece.getPieceAlliance() == Alliance.WHITE) {
+                        if (piece.getPiecePosition() != 60 || piece.getPiecePosition() != 62 || piece.getPiecePosition() != 58)
+                            openingPrincipleBonus -= 50;
+                    }
+                }
+                if (piece.getPieceType() == Piece.PieceType.QUEEN) {
+                    if ((piece.getPieceAlliance() == Alliance.WHITE && piece.getPiecePosition() != 59) ||
+                            (piece.getPieceAlliance() == Alliance.BLACK && piece.getPiecePosition() != 3))
+                        openingPrincipleBonus -= 30;
+                }
+                if (piece.getPieceType() == Piece.PieceType.BISHOP) {
+                    if ((piece.getPieceAlliance() == Alliance.WHITE && piece.getPiecePosition() == 58) ||
+                        (piece.getPieceAlliance() == Alliance.WHITE && piece.getPiecePosition() == 61) ||
+                        (piece.getPieceAlliance() == Alliance.BLACK && piece.getPiecePosition() == 2) ||
+                        (piece.getPieceAlliance() == Alliance.BLACK && piece.getPiecePosition() == 5))
+                        openingPrincipleBonus -= 10;
+                }
+                if (piece.getPieceType() == Piece.PieceType.KNIGHT) {
+                    if ((piece.getPieceAlliance() == Alliance.WHITE && piece.getPiecePosition() == 57) ||
+                            (piece.getPieceAlliance() == Alliance.WHITE && piece.getPiecePosition() == 62) ||
+                            (piece.getPieceAlliance() == Alliance.BLACK && piece.getPiecePosition() == 1) ||
+                            (piece.getPieceAlliance() == Alliance.BLACK && piece.getPiecePosition() == 6))
+                        openingPrincipleBonus -= 10;
+                }
+            }
+        }
+        return openingPrincipleBonus;
+    }
+
+    private static boolean isMidGame (Player player) {
         int pieceValueScore = 0;
         for (final Piece piece: player.getActivePieces()) {
             if (piece.getPieceType().equals(Piece.PieceType.PAWN) || piece.getPieceType().equals(Piece.PieceType.KING)) {
@@ -76,62 +160,8 @@ public class StandardBoardEvaluator implements BoardEvaluator {
             if (piece.getPieceType().equals(Piece.PieceType.QUEEN))
                 pieceValueScore += 4;
         }
-        if (player.getAlliance() == Alliance.BLACK) {
-            if (pieceValueScore >= 10) {
-                for (final Piece piece: player.getActivePieces()) {
-                    positionValueScore += piece.getPieceType().mgValueTable[piece.getPiecePosition()];
-                }
-            } else {
-                for (final Piece piece: player.getActivePieces()) {
-                    positionValueScore += piece.getPieceType().egValueTable[piece.getPiecePosition()];
-                }
-            }
-//            else {
-//                System.out.println("Undefined!");
-//                float mg = ((float) pieceValueScore - 518)/5674;
-//                float eg = 1 - mg;
-//                for (final Piece piece: player.getActivePieces()) {
-//                    positionValueScore += Math.round(piece.getPieceType().mgValueTable[piece.getPiecePosition()] * mg + piece.getPieceType().egValueTable[piece.getPiecePosition()] * eg);
-//                }
-//
-//            }
-        }
-        else {
-            if (pieceValueScore >= 10) {
-                for (final Piece piece: player.getActivePieces()) {
-                    positionValueScore += piece.getPieceType().mgValueTable[flipPosition(piece.getPiecePosition())];
-                }
-            } else {
-                for (final Piece piece: player.getActivePieces()) {
-                    positionValueScore += piece.getPieceType().egValueTable[flipPosition(piece.getPiecePosition())];
-                }
-            }
-//            else {
-//                System.out.println("Undefined!");
-//                float mg = ((float) pieceValueScore - 518)/5674;
-//                float eg = 1 - mg;
-//                for (final Piece piece: player.getActivePieces()) {
-//                    positionValueScore += Math.round(piece.getPieceType().mgValueTable[flipPosition(piece.getPiecePosition())] * mg + piece.getPieceType().egValueTable[flipPosition(piece.getPiecePosition())]);
-//                }
-//
-//            }
-        }
+        return (pieceValueScore >= 10);
 
-        return positionValueScore;
     }
-    private static int flipPosition(final int pos) {
-        int flipPos = 0;
-        if (pos % 8 != 0)   flipPos = pos^56;
-        else if (pos == 8)  flipPos = 64;
-        else if (pos == 16) flipPos = 56;
-        else if (pos == 24) flipPos = 48;
-        else if (pos == 32) flipPos = 40;
-        else if (pos == 40) flipPos = 32;
-        else if (pos == 48) flipPos = 24;
-        else if (pos == 56) flipPos = 16;
-        else if (pos == 64) flipPos = 8;
-        return flipPos;
-    }
-    
-
 }
+

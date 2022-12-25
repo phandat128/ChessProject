@@ -4,10 +4,13 @@ import com.chess.engine.board.Board;
 import com.chess.engine.board.BoardUtils;
 import com.chess.engine.board.Move;
 import com.chess.engine.board.Tile;
+import com.chess.engine.opening.Node;
 import com.chess.engine.pieces.Piece;
 import com.chess.engine.player.MoveTransition;
 import com.chess.engine.player.al.MiniMax;
 import com.chess.engine.player.al.MoveStrategy;
+import com.chess.engine.player.al.NodeStorage;
+import com.chess.engine.player.al.Semaphores;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -19,6 +22,7 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -53,6 +57,7 @@ public class Table extends Observable {
     private final Color darkTileColor = Color.decode("#b58863");
     private final Color lightTileColorHightlight = Color.decode("#cdd26a");
     private final Color darkTileColorHightlight = Color.decode("#aaa23a");
+    private Node moveNode;
 
     private static final Table INSTANCE = new Table();
     private Table() {
@@ -76,6 +81,7 @@ public class Table extends Observable {
         this.gameFrame.add(this.gameHistoryPanel, BorderLayout.EAST);
         this.gameFrame.setVisible(true);
         this.highlightLegalMoves = false;
+        this.moveNode = NodeStorage.currentNode;
     }
 
     public static Table get() {
@@ -181,10 +187,12 @@ public class Table extends Observable {
                 thinkTank.execute();
             }
             if (Table.get().getGameBoard().currentPlayer().isInCheckmate()){
-                System.out.println("Game over," + Table.get().getGameBoard().currentPlayer() + "is in checkmate!");
+                PrintWriter out=new PrintWriter(System.out);
+                out.print("Game over," + Table.get().getGameBoard().currentPlayer() + "is in checkmate!");
             }
             if (Table.get().getGameBoard().currentPlayer().isInStalemate()){
-                System.out.println("Game over," + Table.get().getGameBoard().currentPlayer() + "is in stalemate!");
+                PrintWriter out=new PrintWriter(System.out);
+                out.print("Game over," + Table.get().getGameBoard().currentPlayer() + "is in stalemate!");
             }
         }
     }
@@ -359,6 +367,17 @@ public class Table extends Observable {
                            if (transition.getMoveStatus().isDone()) {
                                chessBoard = transition.getTransitionBoard();
                                moveLog.addMove(move);
+                               if (Semaphores.semaphore)
+                               {
+                                   if (moveNode.getChild().size() != 0) {
+                                       for (Node node : moveNode.getChild()) {
+                                           if (node.getMove() == move.toString()) {
+                                               new NodeStorage(node);
+                                               System.out.println(node.getMove());
+                                           }
+                                       }
+                                   }
+                               }
                            }
                            sourceTile = null;
                            destinationTile = null;
@@ -373,7 +392,6 @@ public class Table extends Observable {
                                    Table.get().moveMadeUpdate(PlayerType.HUMAN);
                                }
                                boardPanel.drawBoard(chessBoard);
-
                            }
                        });
                    }
