@@ -3,10 +3,10 @@ package com.chess.engine.player.al;
 import com.chess.engine.board.Board;
 import com.chess.engine.board.Move;
 import com.chess.engine.opening.Node;
+import com.chess.engine.pieces.Piece;
 import com.chess.engine.player.MoveTransition;
-import com.chess.gui.Table;
 
-import java.io.PrintWriter;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -14,11 +14,13 @@ public class MiniMax implements MoveStrategy{
     private final BoardEvaluator boardEvaluator;
     private final int searchDepth;
     int counting;
+    boolean quietBefore;
 
     public MiniMax(int searchDepth){
         this.boardEvaluator= new StandardBoardEvaluator();
         this.searchDepth = searchDepth;
         this.counting = Counter.count;
+        this.quietBefore  = false;
     }
 
 
@@ -29,63 +31,35 @@ public class MiniMax implements MoveStrategy{
 
     @Override
     public Move execute(Board board) {
-//        final long startTime = System.currentTimeMillis();
-//        System.out.println(board.currentPlayer()+ " THINKING with depth = " + this.searchDepth);
-        PrintWriter out=new PrintWriter(System.out);
-        out.print(board.currentPlayer()+ " THINKING with depth = " + this.searchDepth);
+        final long startTime = System.currentTimeMillis();
+        System.out.println(board.currentPlayer()+ " THINKING with depth = " + this.searchDepth);
 //        int numMoves = board.currentPlayer().getLegalMoves().size();
         new Counter();
         Move bestMove = bestMove(board);
-//        final long executionTime = System.currentTimeMillis() - startTime;
+        final long executionTime = System.currentTimeMillis() - startTime;
+        System.out.println(board.currentPlayer()+ " MOVE with time = " + executionTime);
+        Toolkit.getDefaultToolkit().beep();
         return bestMove;
     }
     private Move bestOpeningMoves(Board board) {
         Node chosenMoveNode;
         Node currentMoveNode;
-        Move chosenMove;
-//        if (counting == 1) {
-//            currentMoveNode = OpeningMovesTree.root;
-//            chosenMoveNode = random(currentMoveNode.getChild());
-//            for (Move move: board.currentPlayer().getLegalMoves()) {
-//                if (move.toString() == chosenMoveNode.getMove()) {
-//                    chosenMove = move;
-//                    new NodeStorage(currentMoveNode);
-//                }
-//            }
-//        }
-//        else
-//        {
-//            currentMoveNode = NodeStorage.currentNode;
-//            chosenMoveNode = random(currentMoveNode.getChild());
-//            if (chosenMoveNode == null) return null;
-//            for (Move move : board.currentPlayer().getLegalMoves()) {
-//                if (move.toString() == chosenMoveNode.getMove()) {
-//                    chosenMove = move;
-//                    new NodeStorage(currentMoveNode);
-//                }
-//            }
-//        }
         currentMoveNode = NodeStorage.currentNode;
         if (currentMoveNode.getChild().size() == 0) return null;
         chosenMoveNode = random(currentMoveNode.getChild());
         for (Move move : board.currentPlayer().getLegalMoves()) {
             if (move.toString().equals(chosenMoveNode.getMove())) {
-                chosenMove = move;
                 new NodeStorage(chosenMoveNode);
-                return chosenMove;
+                return move;
             }
         }
         return null;
     }
 
     private Move bestMove(Board board) {
-        int highestSeenValue = Integer.MIN_VALUE;
-        int lowestSeenValue = Integer.MAX_VALUE;
-        int currentValue;
-
         Move oneBestMove;
-        Collection<Move> bestMoves = new ArrayList<>();
-        while (counting < 7 && Semaphores.semaphore) {
+        Collection<Move> bestMoves;
+        while (counting <= 14 && Semaphores.semaphore) {
 //            double ratio = Math.random() *10;
 //            if (0 < ratio && ratio < 7) {
 //                Move moveFromOpeningTree = bestOpeningMoves(board);
@@ -99,62 +73,58 @@ public class MiniMax implements MoveStrategy{
                 }
                 else {
                     System.out.println("moveFromOpeningTree: " + moveFromOpeningTree);
+                    System.out.println("Player King destination: " + board.currentPlayer().getPlayerKing().getPiecePosition());
                     return moveFromOpeningTree;
                 }
         }
-        int nullValue = board.currentPlayer().getAlliance().isWhite() ?
-                min(board, this.searchDepth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE) :
-                max(board, this.searchDepth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        bestMoves = abSearch(board);
+        oneBestMove = random(bestMoves);
+        System.out.println("Player King destination: " + board.currentPlayer().getPlayerKing().getPiecePosition());
+        return oneBestMove;
+    }
+
+    private Collection<Move> abSearch(Board board) {
+        int currentValue;
+        int highestSeenValue = Integer.MIN_VALUE;
+        int lowestSeenValue = Integer.MAX_VALUE;
+        Collection<Move> bestMoves = new ArrayList<>();
         for(final Move move : board.currentPlayer().getLegalMoves()){
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
             if(moveTransition.getMoveStatus().isDone()){
                 currentValue = board.currentPlayer().getAlliance().isWhite() ?
                         min(moveTransition.getTransitionBoard(),this.searchDepth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE) :
                         max(moveTransition.getTransitionBoard(),this.searchDepth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE);
-                if ( board.currentPlayer().getAlliance().isWhite() && currentValue > nullValue){
-                    nullValue = currentValue;
+                if ( board.currentPlayer().getAlliance().isWhite() && currentValue > highestSeenValue){
+                    highestSeenValue = currentValue;
                     bestMoves.clear();
                     bestMoves.add(move);
                 }
-                else if (board.currentPlayer().getAlliance().isWhite() && currentValue == nullValue) {
+                else if (board.currentPlayer().getAlliance().isWhite() && currentValue > highestSeenValue * 0.9) {
                     bestMoves.add(move);
                 }
-                else if (board.currentPlayer().getAlliance().isBlack()&& currentValue < nullValue){
-                    nullValue = currentValue;
+                else if (board.currentPlayer().getAlliance().isBlack()&& currentValue < lowestSeenValue){
+                    lowestSeenValue = currentValue;
                     bestMoves.clear();
                     bestMoves.add(move);
-                } else if (board.currentPlayer().getAlliance().isBlack() && currentValue == nullValue) {
+                } else if (board.currentPlayer().getAlliance().isBlack() && currentValue < lowestSeenValue * 0.9) {
                     bestMoves.add(move);
                 }
             }
         }
-        if (bestMoves.isEmpty()) {
-            for(final Move move : board.currentPlayer().getLegalMoves()){
-                final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
-                if(moveTransition.getMoveStatus().isDone()){
-                    currentValue = board.currentPlayer().getAlliance().isWhite() ?
-                            min(moveTransition.getTransitionBoard(),this.searchDepth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE) :
-                            max(moveTransition.getTransitionBoard(),this.searchDepth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE);
-                    if ( board.currentPlayer().getAlliance().isWhite() && currentValue > highestSeenValue){
-                        highestSeenValue = currentValue;
-                        bestMoves.clear();
-                        bestMoves.add(move);
-                    }
-                    else if (board.currentPlayer().getAlliance().isWhite() && currentValue >= highestSeenValue * 0.95) {
-                        bestMoves.add(move);
-                    }
-                    else if (board.currentPlayer().getAlliance().isBlack()&& currentValue < lowestSeenValue){
-                        lowestSeenValue = currentValue;
-                        bestMoves.clear();
-                        bestMoves.add(move);
-                    } else if (board.currentPlayer().getAlliance().isBlack() && currentValue <= lowestSeenValue * 0.95) {
-                        bestMoves.add(move);
-                    }
+        return bestMoves;
+    }
+
+    private boolean isQuietScene(Board board) {
+        if (board.currentPlayer().isInCheck()) return false;
+        for (Piece playerPieces: board.currentPlayer().getActivePieces()) {
+            if (playerPieces.equals(Piece.PieceType.QUEEN) || playerPieces.equals(Piece.PieceType.ROOK)) {
+                int des = playerPieces.getPiecePosition();
+                for (Move move: board.currentPlayer().getOpponent().getLegalMoves()) {
+                    if (move.getDestinationCoordinate() == des)     return false;
                 }
             }
         }
-        oneBestMove = random(bestMoves);
-        return oneBestMove;
+        return true;
     }
 
     private static boolean isEndGameScenario(final Board board) {
@@ -162,37 +132,58 @@ public class MiniMax implements MoveStrategy{
                 board.currentPlayer().isInStalemate();
     }
     public int min(final Board board, final int depth, int alpha, int beta){
-        if(depth==0 || isEndGameScenario(board)){
+        int lowestSeenValue=Integer.MAX_VALUE;
+        if(isEndGameScenario(board)){
             return this.boardEvaluator.evaluate(board, depth);
         }
-        int lowestSeenValue=Integer.MAX_VALUE;
+        if (depth==0) { //quiescenceSearch
+            if (!isQuietScene(board) && !quietBefore) {
+                quietBefore = true;
+                return min(board, 3, alpha, beta);
+            }
+            else return this.boardEvaluator.evaluate(board, depth);
+        }
+
+        if (depth > 4) { // null move heuristtic (depth > 3 && notZugzwangBoard()) //TODO
+            final int nullValue = max(board, 3, alpha, beta);
+            if (nullValue <= alpha)           return nullValue;
+            if (beta >= nullValue)            beta = nullValue;
+        }
         for(final Move move : board.currentPlayer().getLegalMoves()){
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
             if(moveTransition.getMoveStatus().isDone()){
                 final int currentValue = max(moveTransition.getTransitionBoard(),depth-1, alpha, beta);
-                if(currentValue <= lowestSeenValue){
-                    lowestSeenValue=currentValue;
-                }
-                if (lowestSeenValue <= alpha) return lowestSeenValue;
-                if (beta >= lowestSeenValue) beta = lowestSeenValue;
+                if(currentValue <= lowestSeenValue)     lowestSeenValue = currentValue;
+                if (lowestSeenValue <= alpha)           return lowestSeenValue;
+                if (beta >= lowestSeenValue)            beta = lowestSeenValue;
             }
         }
         return lowestSeenValue;
     }
     public int max(final Board board, final int depth, int alpha, int beta){
-        if(depth==0 || isEndGameScenario(board)){
+        int highestSeenValue=Integer.MIN_VALUE;
+        if(isEndGameScenario(board)){
             return this.boardEvaluator.evaluate(board, depth);
         }
-        int highestSeenValue=Integer.MIN_VALUE;
+        if (depth==0) {
+            if (isQuietScene(board) && !quietBefore) {
+                quietBefore = true;
+                return max(board, 3, alpha, beta);
+            }
+            else return this.boardEvaluator.evaluate(board, depth);
+        }
+        if (depth > 4 ) {
+            final int nullValue = min(board, 3, alpha, beta);
+            if (nullValue >= beta)           return nullValue;
+            if (alpha <= nullValue)          alpha = nullValue;
+        }
         for(final Move move : board.currentPlayer().getLegalMoves()){
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
             if(moveTransition.getMoveStatus().isDone()){
                 final int currentValue = min(moveTransition.getTransitionBoard(),depth-1, alpha, beta);
-                if(currentValue >= highestSeenValue){
-                    highestSeenValue=currentValue;
-                }
-                if (highestSeenValue >= beta) return highestSeenValue;
-                if (alpha <= highestSeenValue) alpha = highestSeenValue;
+                if(currentValue >= highestSeenValue)    highestSeenValue = currentValue;
+                if (highestSeenValue >= beta)           return highestSeenValue;
+                if (alpha <= highestSeenValue)          alpha = highestSeenValue;
             }
         }
         return highestSeenValue;

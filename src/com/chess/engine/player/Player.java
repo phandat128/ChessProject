@@ -73,10 +73,10 @@ public abstract class Player {
         return !this.isInCheck && !hasEscapeMove();
     }
     public boolean isKingSideCastleCapable() {
-        return this.playerKing.isKingSideCastleCapable();
+        return !this.isInCheck && this.playerKing.isKingSideCastleCapable();
     }
     public boolean isQueenSideCastleCapable() {
-        return this.playerKing.isQueenSideCastleCapable();
+        return !this.isInCheck && this.playerKing.isQueenSideCastleCapable();
     }
     private boolean hasEscapeMove() {
         for (final Move move: this.legalMoves){

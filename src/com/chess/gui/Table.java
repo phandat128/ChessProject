@@ -44,7 +44,6 @@ public class Table extends Observable {
     private Tile destinationTile;
     private Piece humanMovedPiece;
     private BoardDirection boardDirection;
-    private Move computerMove;
 
     private boolean highlightLegalMoves;
 
@@ -57,7 +56,6 @@ public class Table extends Observable {
     private final Color darkTileColor = Color.decode("#b58863");
     private final Color lightTileColorHightlight = Color.decode("#cdd26a");
     private final Color darkTileColorHightlight = Color.decode("#aaa23a");
-    private Node moveNode;
 
     private static final Table INSTANCE = new Table();
     private Table() {
@@ -81,7 +79,6 @@ public class Table extends Observable {
         this.gameFrame.add(this.gameHistoryPanel, BorderLayout.EAST);
         this.gameFrame.setVisible(true);
         this.highlightLegalMoves = false;
-        this.moveNode = NodeStorage.currentNode;
     }
 
     public static Table get() {
@@ -201,7 +198,6 @@ public class Table extends Observable {
         this.chessBoard = board;
     }
     public void updateComputerMove(final Move move) {
-        this.computerMove = move;
     }
     private MoveLog getMoveLog() {
         return this.moveLog;
@@ -369,11 +365,12 @@ public class Table extends Observable {
                                moveLog.addMove(move);
                                if (Semaphores.semaphore)
                                {
-                                   if (moveNode.getChild().size() != 0) {
-                                       for (Node node : moveNode.getChild()) {
-                                           if (node.getMove() == move.toString()) {
+                                   if (NodeStorage.currentNode.getChild().size() != 0) {
+                                       for (Node node : NodeStorage.currentNode.getChild()) {
+                                           if (Objects.equals(node.getMove(), move.toString())) {
                                                new NodeStorage(node);
                                                System.out.println(node.getMove());
+                                               break;
                                            }
                                        }
                                    }
