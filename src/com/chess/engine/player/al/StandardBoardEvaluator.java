@@ -12,7 +12,7 @@ public class StandardBoardEvaluator implements BoardEvaluator {
      private static final int CHECK_BONUS = 100;
     private static final int CHECK_MATE_BONUS = 120000;
 //    private static final int DEPTH_BONUS = 100;
-    private static final int CASTLE_BONUS = 500;
+    private static final int CASTLE_BONUS = 1500;
 
     @Override
     public int evaluate(final  Board board,
@@ -22,9 +22,9 @@ public class StandardBoardEvaluator implements BoardEvaluator {
 
     private int scorePlayer(final  Board board,
                             final Player player) {
-        return pieceValue(player) * 2 + mobility(player) +
+        return pieceValue(player) + mobility(player) * 4 +
                 check(player) + checkmate(player)
-                + castled(player) + positionValue(player) + openingPrincipleBonus(player, board);
+                + castled(player) + positionValue(player) * 8 + openingPrincipleBonus(player, board) * 5;
     }
 
     private static int castled (Player player) {
