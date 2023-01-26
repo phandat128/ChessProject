@@ -2,6 +2,7 @@ package com.chess.engine.board;
 
 import com.chess.engine.Alliance;
 import com.chess.engine.pieces.*;
+import com.chess.engine.pieces.Piece.PieceType;
 import com.chess.engine.player.BlackPlayer;
 import com.chess.engine.player.Player;
 import com.chess.engine.player.WhitePlayer;
@@ -148,6 +149,62 @@ public class Board {
         return Stream.concat(this.whitePlayer.getLegalMoves().stream(),
                             this.blackPlayer.getLegalMoves().stream()).toList();
     }
+
+    // not enough sufficient pieces to mate, lead to the draw
+    public boolean isInInsufficientToMate(){
+        Map<PieceType, Integer> countBlackPieces = new HashMap<>();
+        Map<PieceType, Integer> countWhitePieces = new HashMap<>();
+        countBlackPieces.put(PieceType.BISHOP, 0);
+        countBlackPieces.put(PieceType.KNIGHT, 0);
+        countBlackPieces.put(PieceType.KING, 0);
+        countWhitePieces.put(PieceType.BISHOP, 0);
+        countWhitePieces.put(PieceType.KNIGHT, 0);
+        countWhitePieces.put(PieceType.KING, 0);
+
+        for (Piece piece: this.blackPieces){
+            if (!(piece.getPieceType() == PieceType.KING ||
+                  piece.getPieceType() == PieceType.BISHOP ||
+                  piece.getPieceType() == PieceType.KNIGHT)) return false;
+            PieceType pieceType = piece.getPieceType();
+            countBlackPieces.put(pieceType, countBlackPieces.get(pieceType) + 1);
+        }
+        for (Piece piece: this.whitePieces) {
+            if (!(piece.getPieceType() == PieceType.KING ||
+                  piece.getPieceType() == PieceType.BISHOP ||
+                  piece.getPieceType() == PieceType.KNIGHT)) return false;
+            PieceType pieceType = piece.getPieceType();
+            countWhitePieces.put(pieceType, countWhitePieces.get(pieceType) + 1);
+        }
+        int totalBishopLeft = countBlackPieces.get(PieceType.BISHOP) + countWhitePieces.get(PieceType.BISHOP);
+        int totalKnightLeft = countBlackPieces.get(PieceType.KNIGHT) + countWhitePieces.get(PieceType.KNIGHT);
+
+        if (totalBishopLeft == 0 && totalKnightLeft <= 1) return true; // in case king vs king or king vs king + 1 knight
+        if (totalBishopLeft == 1 && totalKnightLeft == 0) return true; // in case king vs king + 1 bishop
+        // in case two bishops left
+        if (totalBishopLeft == 2 && totalKnightLeft == 0){
+            if (countBlackPieces.get(PieceType.BISHOP) == 1){
+                Bishop blackBishop = null, whiteBishop = null;
+                for (Piece piece: blackPieces){
+                    if (piece.getPieceType() == PieceType.BISHOP) {
+                        blackBishop = (Bishop) piece;
+                        break;
+                    }
+                }
+                for (Piece piece: whitePieces){
+                    if (piece.getPieceType() == PieceType.BISHOP) {
+                        whiteBishop = (Bishop) piece;
+                        break;
+                    }
+                }
+                // if two bishop is in the same color
+                assert blackBishop != null;
+                assert whiteBishop != null;
+                return (blackBishop.getPiecePosition() - whiteBishop.getPiecePosition()) % 2 == 0;
+            }
+        }
+        return false;
+    }
+
     public static class Builder {
         Map<Integer, Piece> boardConfig;
         Alliance nextMoveMaker;

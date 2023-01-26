@@ -4,10 +4,14 @@ import com.chess.engine.board.Board;
 import com.chess.engine.board.BoardUtils;
 import com.chess.engine.board.Move;
 import com.chess.engine.board.Tile;
+import com.chess.engine.opening.Node;
 import com.chess.engine.pieces.Piece;
 import com.chess.engine.player.MoveTransition;
+import com.chess.engine.player.Player;
 import com.chess.engine.player.al.MiniMax;
 import com.chess.engine.player.al.MoveStrategy;
+import com.chess.engine.player.al.NodeStorage;
+import com.chess.engine.player.al.Semaphores;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -24,8 +28,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static java.util.Collections.reverse;
-import static javax.swing.SwingUtilities.isLeftMouseButton;
-import static javax.swing.SwingUtilities.isRightMouseButton;
+import static javax.swing.SwingUtilities.*;
 
 public class Table extends Observable {
     private final BoardPanel boardPanel;
@@ -40,7 +43,6 @@ public class Table extends Observable {
     private Tile destinationTile;
     private Piece humanMovedPiece;
     private BoardDirection boardDirection;
-    private Move computerMove;
 
     private boolean highlightLegalMoves;
 
@@ -51,8 +53,8 @@ public class Table extends Observable {
     private final JMenuBar tableMenuBar;
     private final Color lightTileColor = Color.decode("#f0d9b5");
     private final Color darkTileColor = Color.decode("#b58863");
-    private final Color lightTileColorHightlight = Color.decode("#cdd26a");
-    private final Color darkTileColorHightlight = Color.decode("#aaa23a");
+    private final Color lightTileColorHighlight = Color.decode("#cdd26a");
+    private final Color darkTileColorHighlight = Color.decode("#aaa23a");
 
     private static final Table INSTANCE = new Table();
     private Table() {
@@ -70,12 +72,11 @@ public class Table extends Observable {
         this.addObserver(new TableGameAIWatcher());
         this.gameSetup = new GameSetup(this.gameFrame, true);
         this.boardDirection = BoardDirection.NORMAL;
-        this.highlightLegalMoves = false;
         this.gameFrame.add(this.takenPiecesPanel, BorderLayout.WEST);
         this.gameFrame.add(this.boardPanel,BorderLayout.CENTER);
         this.gameFrame.add(this.gameHistoryPanel, BorderLayout.EAST);
         this.gameFrame.setVisible(true);
-        this.highlightLegalMoves = false;
+        this.highlightLegalMoves = true;
     }
 
     public static Table get() {
@@ -174,26 +175,60 @@ public class Table extends Observable {
     private static class TableGameAIWatcher implements Observer {
         @Override
         public void update(final Observable o, final Object arg) {
-            if (Table.get().getGameSetup().isAIPlayer(Table.get().getGameBoard().currentPlayer()) &&
-                    !Table.get().getGameBoard().currentPlayer().isInCheckmate() &&
-                    !Table.get().getGameBoard().currentPlayer().isInStalemate()){
+            Table table = Table.get();
+            Player currentPlayer = table.getGameBoard().currentPlayer();
+            if (table.isThreefoldRepeated()){
+                System.out.println("Threefold repeated! Game draw!");
+                return;
+            }
+            if (table.getGameBoard().isInInsufficientToMate()){
+                System.out.println("Not enough sufficient pieces to win! Game draw!");
+                return;
+            }
+            if (table.isFiftyMoveNoProgress()){
+                System.out.println("Game draw due to 50 move rule");
+                return;
+            }
+            if (currentPlayer.isInCheckmate()){
+                System.out.println("Game over, " + currentPlayer.getClass().getSimpleName() + " is in checkmate!");
+                return;
+            }
+            if (currentPlayer.isInStalemate()){
+                System.out.println("Game over, " + currentPlayer.getClass().getSimpleName() + " is in stalemate!");
+                return;
+            }
+            if (table.getGameSetup().isAIPlayer(currentPlayer)){
                 final AIThinkTank thinkTank = new AIThinkTank();
                 thinkTank.execute();
             }
-            if (Table.get().getGameBoard().currentPlayer().isInCheckmate()){
-                System.out.println("Game over," + Table.get().getGameBoard().currentPlayer() + "is in checkmate!");
-            }
-            if (Table.get().getGameBoard().currentPlayer().isInStalemate()){
-                System.out.println("Game over," + Table.get().getGameBoard().currentPlayer() + "is in stalemate!");
-            }
         }
+    }
+
+    private boolean isThreefoldRepeated(){
+        if (this.moveLog.size() < 12) return false;
+        List<Move> moveList = new ArrayList<>(getMoveLog().getMoves());
+        Collections.reverse(moveList);
+        return moveList.get(0).equals(moveList.get(4)) && moveList.get(0).equals(moveList.get(8)) &&
+                moveList.get(1).equals(moveList.get(5)) && moveList.get(1).equals(moveList.get(9)) &&
+                moveList.get(2).equals(moveList.get(6)) && moveList.get(2).equals(moveList.get(10)) &&
+                moveList.get(3).equals(moveList.get(7)) && moveList.get(3).equals(moveList.get(11));
+    }
+
+    private boolean isFiftyMoveNoProgress(){
+        if (this.moveLog.size() < 100) return false;
+        List<Move> moveList = new ArrayList<>(getMoveLog().getMoves());
+        Collections.reverse(moveList);
+        for (int recentMovePosition = 0; recentMovePosition < 100; recentMovePosition ++){
+            Move recentMove = moveList.get(recentMovePosition);
+            if (recentMove instanceof Move.AttackMove || recentMove instanceof Move.PawnMove) return false;
+        }
+        return true;
     }
 
     public void updateGameBoard(final Board board) {
         this.chessBoard = board;
     }
     public void updateComputerMove(final Move move) {
-        this.computerMove = move;
     }
     private MoveLog getMoveLog() {
         return this.moveLog;
@@ -225,13 +260,14 @@ public class Table extends Observable {
         public void done() {
             try {
                 final Move bestMove = get();
-                Table.get().updateComputerMove(bestMove);
-                Table.get().updateGameBoard(Table.get().getGameBoard().currentPlayer().makeMove(bestMove).getTransitionBoard());
-                Table.get().getMoveLog().addMove(bestMove);
-                Table.get().getGameHistoryPanel().redo(Table.get().getGameBoard(), Table.get().getMoveLog());
-                Table.get().getTakenPiecesPanel().redo(Table.get().getMoveLog());
-                Table.get().getBoardPanel().drawBoard(Table.get().getGameBoard());
-                Table.get().moveMadeUpdate(PlayerType.COMPUTER);
+                Table table = Table.get();
+                table.updateComputerMove(bestMove);
+                table.updateGameBoard(table.getGameBoard().currentPlayer().makeMove(bestMove).getTransitionBoard());
+                table.getMoveLog().addMove(bestMove);
+                table.getGameHistoryPanel().redo(Table.get().getGameBoard(), Table.get().getMoveLog());
+                table.getTakenPiecesPanel().redo(Table.get().getMoveLog());
+                table.getBoardPanel().drawBoard(Table.get().getGameBoard());
+                table.moveMadeUpdate(PlayerType.COMPUTER);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             } catch (ExecutionException e) {
@@ -359,6 +395,18 @@ public class Table extends Observable {
                            if (transition.getMoveStatus().isDone()) {
                                chessBoard = transition.getTransitionBoard();
                                moveLog.addMove(move);
+                               if (Semaphores.semaphore)
+                               {
+                                   if (NodeStorage.currentNode.getChild().size() != 0) {
+                                       for (Node node : NodeStorage.currentNode.getChild()) {
+                                           if (Objects.equals(node.getMove(), move.toString())) {
+                                               new NodeStorage(node);
+                                               System.out.println(node.getMove());
+                                               break;
+                                           }
+                                       }
+                                   }
+                               }
                            }
                            sourceTile = null;
                            destinationTile = null;
@@ -373,7 +421,6 @@ public class Table extends Observable {
                                    Table.get().moveMadeUpdate(PlayerType.HUMAN);
                                }
                                boardPanel.drawBoard(chessBoard);
-
                            }
                        });
                    }
@@ -433,7 +480,7 @@ public class Table extends Observable {
                                         BoardUtils.SIXTH_RANK[this.titleId] ||
                                         BoardUtils.FOURTH_RANK[this.titleId] ||
                                         BoardUtils.SECOND_RANK[this.titleId] ){
-                                        setBackground(this.titleId % 2 ==0 ? lightTileColorHightlight : darkTileColorHightlight);
+                                        setBackground(this.titleId % 2 ==0 ? lightTileColorHighlight : darkTileColorHighlight);
                                 }
                             else{
                                 if (    BoardUtils.SEVENTH_RANK[this.titleId] ||
@@ -442,7 +489,7 @@ public class Table extends Observable {
                                         BoardUtils.FIRST_RANK[this.titleId]
                                 ){
                                         setBackground(Color.RED);
-                                        setBackground(this.titleId % 2 !=0 ? lightTileColorHightlight : darkTileColorHightlight);
+                                        setBackground(this.titleId % 2 !=0 ? lightTileColorHighlight : darkTileColorHighlight);
                                 }
                             }
                         } catch (Exception e) {
