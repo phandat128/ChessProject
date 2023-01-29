@@ -39,9 +39,9 @@ public class Pawn extends Piece{
                     legalMoves.add(new PawnPromotion(
                             new PawnMove(board, this, candidateDestinationCoordinate), new Bishop(candidateDestinationCoordinate, this.pieceAlliance, false)));
                     legalMoves.add(new PawnPromotion(
-                            new PawnMove(board, this, candidateDestinationCoordinate), new Knight(candidateDestinationCoordinate, this.pieceAlliance, false)));
-                    legalMoves.add(new PawnPromotion(
                             new PawnMove(board, this, candidateDestinationCoordinate), new Rook(candidateDestinationCoordinate, this.pieceAlliance, false)));
+                    legalMoves.add(new PawnPromotion(
+                            new PawnMove(board, this, candidateDestinationCoordinate), new Knight(candidateDestinationCoordinate, this.pieceAlliance, false)));
                 }
                 else {
                     legalMoves.add(new PawnMove(board, this, candidateDestinationCoordinate));
@@ -134,28 +134,6 @@ public class Pawn extends Piece{
     public Pawn movePiece(final Move move) {
         return new Pawn(move.getDestinationCoordinate(), move.getMovedPiece().getPieceAlliance(),  false);
     }
-    public Piece choosePromotePiece() {
-        new PromoteFrame();
-        int promoteChoice = PromoteFrame.promoteChoice;
-        switch (promoteChoice) {
-            case 1 -> {
-                return new Knight(this.piecePosition, this.pieceAlliance, false);
-            }
-            case 2 -> {
-                return new Bishop(this.piecePosition, this.pieceAlliance, false);
-            }
-            case 3 -> {
-                return new Rook(this.piecePosition, this.pieceAlliance, false);
-            }
-            case 4 -> {
-                return new Queen(this.piecePosition, this.pieceAlliance, false);
-            }
-            default -> {
-                return null;
-            }
-        }
-    }
-
 
 
 }

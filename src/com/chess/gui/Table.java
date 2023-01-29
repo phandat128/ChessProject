@@ -5,7 +5,7 @@ import com.chess.engine.board.BoardUtils;
 import com.chess.engine.board.Move;
 import com.chess.engine.board.Tile;
 import com.chess.engine.opening.Node;
-import com.chess.engine.pieces.Piece;
+import com.chess.engine.pieces.*;
 import com.chess.engine.player.MoveTransition;
 import com.chess.engine.player.Player;
 import com.chess.engine.player.al.MiniMax;
@@ -390,7 +390,41 @@ public class Table extends Observable {
                        }
                        else {
                            destinationTile = chessBoard.getTile(titleId);
-                           final Move move = Move.MoveFactory.createMove(chessBoard, sourceTile.getTileCoordinate(), destinationTile.getTileCoordinate());
+                           Move move = Move.MoveFactory.createMove(chessBoard, sourceTile.getTileCoordinate(), destinationTile.getTileCoordinate());
+                           if(move instanceof Move.PawnPromotion){
+                               Move.PawnPromotion tempMove= (Move.PawnPromotion) move;
+                               new PromoteFrame(boardPanel);
+                               int promoteChoice = PromoteFrame.promoteChoice;
+                               switch (promoteChoice) {
+                                   case 1 -> {
+                                      move = new Move.PawnPromotion(
+                                              tempMove.getDecoratedMove(), new Knight(tempMove.getDecoratedMove().getDestinationCoordinate(),
+                                              tempMove.getMovedPiece().getPieceAlliance(), false));
+                                      break;
+                                   }
+                                   case 2 -> {
+                                       move = new Move.PawnPromotion(
+                                               tempMove.getDecoratedMove(), new Bishop(tempMove.getDecoratedMove().getDestinationCoordinate(),
+                                               tempMove.getMovedPiece().getPieceAlliance(), false));
+                                       break;
+                                   }
+                                   case 3 -> {
+                                       move = new Move.PawnPromotion(
+                                               tempMove.getDecoratedMove(), new Rook(tempMove.getDecoratedMove().getDestinationCoordinate(),
+                                               tempMove.getMovedPiece().getPieceAlliance(), false));
+                                       break;
+                                   }
+                                   case 4 -> {
+                                       move = new Move.PawnPromotion(
+                                               tempMove.getDecoratedMove(), new Queen(tempMove.getDecoratedMove().getDestinationCoordinate(),
+                                               tempMove.getMovedPiece().getPieceAlliance(), false));
+                                       break;
+                                   }
+                                   default -> {
+                                       break;
+                                   }
+                               }
+                           }
                            final MoveTransition transition = chessBoard.currentPlayer().makeMove(move);
                            if (transition.getMoveStatus().isDone()) {
                                chessBoard = transition.getTransitionBoard();

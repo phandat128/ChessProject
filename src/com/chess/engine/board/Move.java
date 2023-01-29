@@ -291,6 +291,9 @@ public abstract class Move {
         public String toString() {
             return BoardUtils.getPositionAtCoordinate(this.destinationCoordinate) + "=" + promotionPiece.toString();
         }
+        public Move getDecoratedMove(){
+            return this.decoratedMove;
+        }
     }
 
     public static final class PawnJump extends Move {
