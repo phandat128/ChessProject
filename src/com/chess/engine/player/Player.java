@@ -69,8 +69,15 @@ public abstract class Player {
         return this.isInCheck && !hasEscapeMove();
     }
 
-    public boolean isInStalemate(){
+    public boolean isInStalemate(){ //hòa cờ
         return !this.isInCheck && !hasEscapeMove();
+        //Khi 1 hình cờ lặp lại 3 lần (2 bên đi cùng 1 nước 3 lần)
+        //- Khi 2 bên không đủ quân để chiếu hết:
+        //		+ Vua vs Vua
+        //		+ Vua vs Vua + 1 Mã
+        //		+ Vua vs Vua + 1 Tượng
+        //- Khi quá 50 nước mà không có nước đi quân tốt/ nước ăn quân
+        //	(Trong hàm isStalemate() cần thêm hàm truy cập vào moveLog để đọc lịch sử nước đi)
     }
     public boolean isKingSideCastleCapable() {
         return !this.isInCheck && this.playerKing.isKingSideCastleCapable();
@@ -92,7 +99,7 @@ public abstract class Player {
 
 
     public boolean isCastled(){
-        return false;
+        return this.playerKing.isCastled();
     }
 
     public MoveTransition makeMove(final Move move){
