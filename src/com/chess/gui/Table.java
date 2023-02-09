@@ -31,7 +31,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static java.util.Collections.reverse;
-import static javax.swing.SwingUtilities.*;
+import static javax.swing.SwingUtilities.isLeftMouseButton;
+import static javax.swing.SwingUtilities.isRightMouseButton;
 
 public class Table extends Observable {
     private final BoardPanel boardPanel;
@@ -306,7 +307,7 @@ public class Table extends Observable {
         abstract BoardDirection opposite();
     }
 
-    private class BoardPanel extends JPanel {
+    public class BoardPanel extends JPanel {
         private final ArrayList<TilePanel> boardTiles;
 
         BoardPanel () {

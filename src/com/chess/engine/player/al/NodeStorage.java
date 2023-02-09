@@ -6,7 +6,7 @@ import com.chess.engine.opening.OpeningMovesTree;
 public class NodeStorage {
     public static Node currentNode = OpeningMovesTree.root;
     public NodeStorage(Node node) {
-        currentNode = node;
+        throw new RuntimeException("Cannot initiate");
     }
     public static void store(Node node){
         currentNode = node;

@@ -36,7 +36,7 @@ public class MiniMax implements MoveStrategy{
         final long startTime = System.currentTimeMillis();
         System.out.println(board.currentPlayer()+ " THINKING with depth = " + this.searchDepth);
 //        int numMoves = board.currentPlayer().getLegalMoves().size();
-        new Counter();
+        Counter.increase();
         Move bestMove = bestMove(board);
         final long executionTime = System.currentTimeMillis() - startTime;
         System.out.println(board.currentPlayer()+ " MOVE with time = " + executionTime);
@@ -51,7 +51,7 @@ public class MiniMax implements MoveStrategy{
         chosenMoveNode = random(currentMoveNode.getChild());
         for (Move move : board.currentPlayer().getLegalMoves()) {
             if (move.toString().equals(chosenMoveNode.getMove())) {
-                new NodeStorage(chosenMoveNode);
+                NodeStorage.store(chosenMoveNode);
                 return move;
             }
         }
@@ -71,7 +71,7 @@ public class MiniMax implements MoveStrategy{
             Move moveFromOpeningTree = bestOpeningMoves(board);
 
             if (moveFromOpeningTree == null) {
-                new Semaphores();
+                Semaphores.setSemaphore(false);
             }
             else {
                 System.out.println("moveFromOpeningTree: " + moveFromOpeningTree);

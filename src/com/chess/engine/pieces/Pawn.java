@@ -39,9 +39,9 @@ public class Pawn extends Piece{
                     legalMoves.add(new PawnPromotion(
                             new PawnMove(board, this, candidateDestinationCoordinate), new Bishop(candidateDestinationCoordinate, this.pieceAlliance, false)));
                     legalMoves.add(new PawnPromotion(
-                            new PawnMove(board, this, candidateDestinationCoordinate), new Rook(candidateDestinationCoordinate, this.pieceAlliance, false)));
-                    legalMoves.add(new PawnPromotion(
                             new PawnMove(board, this, candidateDestinationCoordinate), new Knight(candidateDestinationCoordinate, this.pieceAlliance, false)));
+                    legalMoves.add(new PawnPromotion(
+                            new PawnMove(board, this, candidateDestinationCoordinate), new Rook(candidateDestinationCoordinate, this.pieceAlliance, false)));
                 }
                 else {
                     legalMoves.add(new PawnMove(board, this, candidateDestinationCoordinate));
@@ -154,7 +154,6 @@ public class Pawn extends Piece{
             }
         }
     }
-
 
 
 
