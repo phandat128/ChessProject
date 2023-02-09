@@ -69,7 +69,7 @@ public abstract class Piece {
 
     public enum PieceType {
 
-        PAWN("P", 128, 358, new int[]
+        PAWN("P", 128, 258, new int[]
                 { 0, 0, 0, 0, 0, 0, 0, 0,
                   2, 4, 11, 18, 16, 21, 9, -3,
                  -9, -15, 11, 15, 31, 23, 6, -20,

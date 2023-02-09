@@ -15,7 +15,8 @@ public class StandardBoardEvaluator implements BoardEvaluator {
     private static final int CASTLE_BONUS = 500;
     private static final int PIECE_WEIGHT = 3;
     private static final int MOBILITY_WEIGHT = 3;
-    private static final int PAWN_STRUCTURE_WEIGHT = 2;
+    private static final int PAWN_STRUCTURE_WEIGHT = 3;
+    private static final int ENDING_PRINCIPLE_WEIGHT = 2;
 
     @Override
     public int evaluate(final  Board board,
@@ -30,7 +31,8 @@ public class StandardBoardEvaluator implements BoardEvaluator {
         int score = pieceValue(player, board) * PIECE_WEIGHT + mobility(player, board) * MOBILITY_WEIGHT +
                 check(player, board) + checkmate(player, depth)
                 + castled(player) + positionValue(player, board) + openingPrincipleBonus(player) +
-                pawnStructureBonus(player, board) * PAWN_STRUCTURE_WEIGHT + triviaBonus(player, board);
+                pawnStructureBonus(player, board) * PAWN_STRUCTURE_WEIGHT + endingPrincipleBonus(player, board) *  ENDING_PRINCIPLE_WEIGHT
+                + triviaBonus(player, board);
 //        System.out.println("White player: ");
 //        System.out.println("pieceValue: " + pieceValue(board.whitePlayer(), board) + ", mobility: " + mobility(board.whitePlayer(),board) * 3
 //        + ", positionValue: " + positionValue(board.whitePlayer(), board) + ", OPV: " + openingPrincipleBonus(board.whitePlayer())
@@ -82,6 +84,14 @@ public class StandardBoardEvaluator implements BoardEvaluator {
     private static int mobility( final Player player, final Board board) {
         int mobilityBonus = 0;
         int numMoves;
+        int[] knightMobilMG = {-20, -16, -5, -1, 1, 3, 7, 10, 12};
+        int[] knightMobilEG = {-23, -17, -10, -5, 2, 3, 5, 7, 9};
+        int[] bishopMobilMG = {-15, -5, 4, 8, 11, 15, 15, 17, 18, 20, 22, 23, 25, 27};
+        int[] bishopMobilEG = {-20, -10, -5, 5, 7, 13, 18, 18, 20, 23, 25, 27, 30, 32};
+        int[] rookMobilMG = {-20, -10, 0, 1, 1, 5, 7, 10, 13, 13, 13, 15, 20, 20, 23};
+        int[] rookMobilEG = {-30, -10, 5, 15, 25, 33, 33, 40, 43, 45, 50, 53, 55, 57, 60};
+        int[] queenMobilMG = {-10, -5, -3, -3, 8, 10, 10, 10, 12, 13, 26, 18, 20, 20, 20, 20, 20, 20, 20, 25, 25, 30, 33, 35, 35, 35, 35, 38};
+        int[] queenMobilEG = {-17, -10, -5, 5, 13, 18, 20, 25, 25, 30, 30, 33, 40, 43, 45, 45, 45, 45, 47, 50, 50, 50, 55, 55, 57, 60, 60, 73};
         for (Piece piece: player.getActivePieces()) {
             numMoves = piece.calculateLegalMove(board).size();
             Piece.PieceType movePieceType = piece.getPieceType();
@@ -90,78 +100,16 @@ public class StandardBoardEvaluator implements BoardEvaluator {
                     mobilityBonus += numMoves;
                 }
                 else if (movePieceType == Piece.PieceType.KNIGHT) {
-                    if (numMoves == 0)  mobilityBonus -= 20;
-                    else if (numMoves == 1)  mobilityBonus -= 16;
-                    else if (numMoves == 2)  mobilityBonus -= 5;
-                    else if (numMoves == 3)  mobilityBonus -= 1;
-                    else if (numMoves == 4)  mobilityBonus += 1;
-                    else if (numMoves == 5)  mobilityBonus += 3;
-                    else if (numMoves == 6)  mobilityBonus += 7;
-                    else if (numMoves == 7)  mobilityBonus += 10;
-                    else if (numMoves == 8)  mobilityBonus += 12;
+                    mobilityBonus += knightMobilMG[numMoves];
                 }
                 else if (movePieceType == Piece.PieceType.BISHOP) {
-                    if (numMoves == 0)  mobilityBonus -= 15;
-                    else if (numMoves == 1)  mobilityBonus -= 5;
-                    else if (numMoves == 2)  mobilityBonus += 4;
-                    else if (numMoves == 3)  mobilityBonus += 8;
-                    else if (numMoves == 4)  mobilityBonus += 11;
-                    else if (numMoves == 5)  mobilityBonus += 15;
-                    else if (numMoves == 6)  mobilityBonus += 15;
-                    else if (numMoves == 7)  mobilityBonus += 17;
-                    else if (numMoves == 8)  mobilityBonus += 18;
-                    else if (numMoves == 9)  mobilityBonus += 20;
-                    else if (numMoves == 10)  mobilityBonus += 22;
-                    else if (numMoves == 11)  mobilityBonus += 23;
-                    else if (numMoves == 12)  mobilityBonus += 25;
-                    else if (numMoves == 13)  mobilityBonus += 27;
+                    mobilityBonus += bishopMobilMG[numMoves];
                 }
                 else if (movePieceType == Piece.PieceType.ROOK) {
-                    if (numMoves == 0)  mobilityBonus -= 20;
-                    else if (numMoves == 1)  mobilityBonus -= 10;
-                    else if (numMoves == 2)  mobilityBonus += 0;
-                    else if (numMoves == 3)  mobilityBonus += 1;
-                    else if (numMoves == 4)  mobilityBonus += 1;
-                    else if (numMoves == 5)  mobilityBonus += 5;
-                    else if (numMoves == 6)  mobilityBonus += 7;
-                    else if (numMoves == 7)  mobilityBonus += 10;
-                    else if (numMoves == 8)  mobilityBonus += 13;
-                    else if (numMoves == 9)  mobilityBonus += 13;
-                    else if (numMoves == 10)  mobilityBonus += 13;
-                    else if (numMoves == 11)  mobilityBonus += 15;
-                    else if (numMoves == 12)  mobilityBonus += 20;
-                    else if (numMoves == 13)  mobilityBonus += 20;
-                    else if (numMoves == 14)  mobilityBonus += 23;
+                    mobilityBonus += rookMobilMG[numMoves];
                 }
                 else if (movePieceType == Piece.PieceType.QUEEN) {
-                    if (numMoves == 0)  mobilityBonus -= 10;
-                    else if (numMoves == 1)  mobilityBonus -= 5;
-                    else if (numMoves == 2)  mobilityBonus -= 3;
-                    else if (numMoves == 3)  mobilityBonus -= 3;
-                    else if (numMoves == 4)  mobilityBonus += 8;
-                    else if (numMoves == 5)  mobilityBonus += 10;
-                    else if (numMoves == 6)  mobilityBonus += 10;
-                    else if (numMoves == 7)  mobilityBonus += 10;
-                    else if (numMoves == 8)  mobilityBonus += 12;
-                    else if (numMoves == 9)  mobilityBonus += 13;
-                    else if (numMoves == 10)  mobilityBonus += 15;
-                    else if (numMoves == 11)  mobilityBonus += 18;
-                    else if (numMoves == 12)  mobilityBonus += 20;
-                    else if (numMoves == 13)  mobilityBonus += 20;
-                    else if (numMoves == 14)  mobilityBonus += 20;
-                    else if (numMoves == 15)  mobilityBonus += 20;
-                    else if (numMoves == 16)  mobilityBonus += 20;
-                    else if (numMoves == 17)  mobilityBonus += 20;
-                    else if (numMoves == 18)  mobilityBonus += 20;
-                    else if (numMoves == 19)  mobilityBonus += 25;
-                    else if (numMoves == 20)  mobilityBonus += 25;
-                    else if (numMoves == 21)  mobilityBonus += 30;
-                    else if (numMoves == 22)  mobilityBonus += 33;
-                    else if (numMoves == 23)  mobilityBonus += 35;
-                    else if (numMoves == 24)  mobilityBonus += 35;
-                    else if (numMoves == 25)  mobilityBonus += 35;
-                    else if (numMoves == 26)  mobilityBonus += 35;
-                    else if (numMoves == 27)  mobilityBonus += 38;
+                    mobilityBonus += queenMobilMG[numMoves];
                 }
             }
             else {
@@ -169,78 +117,16 @@ public class StandardBoardEvaluator implements BoardEvaluator {
                     mobilityBonus += numMoves;
                 }
                 else if (movePieceType == Piece.PieceType.KNIGHT) {
-                    if (numMoves == 0)  mobilityBonus -= 23;
-                    else if (numMoves == 1)  mobilityBonus -= 17;
-                    else if (numMoves == 2)  mobilityBonus -= 10;
-                    else if (numMoves == 3)  mobilityBonus -= 5;
-                    else if (numMoves == 4)  mobilityBonus += 2;
-                    else if (numMoves == 5)  mobilityBonus += 3;
-                    else if (numMoves == 6)  mobilityBonus += 5;
-                    else if (numMoves == 7)  mobilityBonus += 7;
-                    else if (numMoves == 8)  mobilityBonus += 9;
+                    mobilityBonus += knightMobilEG[numMoves];
                 }
                 else if (movePieceType == Piece.PieceType.BISHOP) {
-                    if (numMoves == 0)  mobilityBonus -= 20;
-                    else if (numMoves == 1)  mobilityBonus -= 10;
-                    else if (numMoves == 2)  mobilityBonus -= 5;
-                    else if (numMoves == 3)  mobilityBonus += 5;
-                    else if (numMoves == 4)  mobilityBonus += 7;
-                    else if (numMoves == 5)  mobilityBonus += 13;
-                    else if (numMoves == 6)  mobilityBonus += 18;
-                    else if (numMoves == 7)  mobilityBonus += 18;
-                    else if (numMoves == 8)  mobilityBonus += 20;
-                    else if (numMoves == 9)  mobilityBonus += 23;
-                    else if (numMoves == 10)  mobilityBonus += 25;
-                    else if (numMoves == 11)  mobilityBonus += 27;
-                    else if (numMoves == 12)  mobilityBonus += 30;
-                    else if (numMoves == 13)  mobilityBonus += 32;
+                    mobilityBonus += bishopMobilEG[numMoves];
                 }
                 else if (movePieceType == Piece.PieceType.ROOK) {
-                    if (numMoves == 0)  mobilityBonus -= 30;
-                    else if (numMoves == 1)  mobilityBonus -= 10;
-                    else if (numMoves == 2)  mobilityBonus += 5;
-                    else if (numMoves == 3)  mobilityBonus += 15;
-                    else if (numMoves == 4)  mobilityBonus += 25;
-                    else if (numMoves == 5)  mobilityBonus += 33;
-                    else if (numMoves == 6)  mobilityBonus += 33;
-                    else if (numMoves == 7)  mobilityBonus += 40;
-                    else if (numMoves == 8)  mobilityBonus += 43;
-                    else if (numMoves == 9)  mobilityBonus += 45;
-                    else if (numMoves == 10)  mobilityBonus += 50;
-                    else if (numMoves == 11)  mobilityBonus += 53;
-                    else if (numMoves == 12)  mobilityBonus += 55;
-                    else if (numMoves == 13)  mobilityBonus += 57;
-                    else if (numMoves == 14)  mobilityBonus += 60;
+                    mobilityBonus += rookMobilEG[numMoves];
                 }
                 else if (movePieceType == Piece.PieceType.QUEEN) {
-                    if (numMoves == 0)  mobilityBonus -= 17;
-                    else if (numMoves == 1)  mobilityBonus -= 10;
-                    else if (numMoves == 2)  mobilityBonus -= 5;
-                    else if (numMoves == 3)  mobilityBonus += 5;
-                    else if (numMoves == 4)  mobilityBonus += 13;
-                    else if (numMoves == 5)  mobilityBonus += 18;
-                    else if (numMoves == 6)  mobilityBonus += 20;
-                    else if (numMoves == 7)  mobilityBonus += 25;
-                    else if (numMoves == 8)  mobilityBonus += 25;
-                    else if (numMoves == 9)  mobilityBonus += 30;
-                    else if (numMoves == 10)  mobilityBonus += 30;
-                    else if (numMoves == 11)  mobilityBonus += 33;
-                    else if (numMoves == 12)  mobilityBonus += 40;
-                    else if (numMoves == 13)  mobilityBonus += 43;
-                    else if (numMoves == 14)  mobilityBonus += 45;
-                    else if (numMoves == 15)  mobilityBonus += 45;
-                    else if (numMoves == 16)  mobilityBonus += 45;
-                    else if (numMoves == 17)  mobilityBonus += 45;
-                    else if (numMoves == 18)  mobilityBonus += 47;
-                    else if (numMoves == 19)  mobilityBonus += 50;
-                    else if (numMoves == 20)  mobilityBonus += 50;
-                    else if (numMoves == 21)  mobilityBonus += 50;
-                    else if (numMoves == 22)  mobilityBonus += 55;
-                    else if (numMoves == 23)  mobilityBonus += 55;
-                    else if (numMoves == 24)  mobilityBonus += 57;
-                    else if (numMoves == 25)  mobilityBonus += 60;
-                    else if (numMoves == 26)  mobilityBonus += 60;
-                    else if (numMoves == 27)  mobilityBonus += 73;
+                    mobilityBonus += queenMobilEG[numMoves];
                 }
             }
         }
@@ -406,14 +292,35 @@ public class StandardBoardEvaluator implements BoardEvaluator {
         }
         return 0;
     }
-//    private static int endingPrincipleBonus(Player player, Board board) {
-//        if (!isMidGame(board)) {
-//            int endingPrincipleBonus = 0;
-//
-//            return endingPrincipleBonus;
-//        }
-//        return 0;
-//    }
+    private static int endingPrincipleBonus(Player player, Board board) {
+        if (!isMidGame(board)) {
+            int endingPrincipleBonus = 0;
+            int bishopC = 0, knightC = 0, rookC = 0, queenC = 0, bishopO = 0, knightO = 0, rookO = 0, queenO = 0;
+            for(Piece piece: player.getActivePieces()) {
+                if (piece.getPieceType() == Piece.PieceType.BISHOP) bishopC++;
+                if (piece.getPieceType() == Piece.PieceType.KNIGHT) knightC++;
+                if (piece.getPieceType() == Piece.PieceType.ROOK) rookC++;
+                if (piece.getPieceType() == Piece.PieceType.QUEEN) queenC++;
+            }
+            for(Piece piece: player.getOpponent().getActivePieces()) {
+                if (piece.getPieceType() == Piece.PieceType.BISHOP) bishopO++;
+                if (piece.getPieceType() == Piece.PieceType.KNIGHT) knightO++;
+                if (piece.getPieceType() == Piece.PieceType.ROOK) rookO++;
+                if (piece.getPieceType() == Piece.PieceType.QUEEN) queenO++;
+            }
+
+            if (bishopO + knightO + rookO + queenO == 0 && bishopC + knightC + rookC + queenC >= 1) { //KX vs lone K
+                int rdO = Math.abs((player.getOpponent().getPlayerKing().getPiecePosition()+4)/8); //rank distance of Opponent (to edge)
+                int fdO = Math.abs((player.getOpponent().getPlayerKing().getPiecePosition()+4)%8); // file distance of Opponent (to edge)
+                endingPrincipleBonus += 90 - (7 * fdO * fdO / 2 + 7 * rdO * rdO / 2); //push opponent's K towards edge
+                int rdC = Math.abs((player.getPlayerKing().getPiecePosition()+4)/8); //rank distance of Current player (to edge)
+                int fdC = Math.abs((player.getPlayerKing().getPiecePosition()+4)%8); //file distance of Current player (to edge)
+                endingPrincipleBonus += 140 - 20 * ((rdO - rdC) * (rdO - rdC) + (fdO - fdC) * (fdO - fdC)); // keeps 2 Ks close
+            }
+            return endingPrincipleBonus;
+        }
+        return 0;
+    }
     private static int pawnStructureBonus(Player player, Board board) {
         if (!isOpenGame()) {
             Collection<Piece> ourPieces = player.getActivePieces();
@@ -421,6 +328,8 @@ public class StandardBoardEvaluator implements BoardEvaluator {
             int psBonus = 0, numPawn = 0;
             int[] pawnPosList = new int[8];
             int[] pawnPosCol = new int[8];
+            int[] passedPawnMG = {5, 15, 25, 65, 165, 285};
+            int[] passedPawnEG = {40, 55, 75, 115, Piece.PieceType.PAWN.egPieceValue, Piece.PieceType.PAWN.egPieceValue * 2};
             for (Piece piece : ourPieces) {
                 if (piece.getPieceType() == Piece.PieceType.PAWN) {
                     //passedPawn
@@ -431,53 +340,33 @@ public class StandardBoardEvaluator implements BoardEvaluator {
                     for (Piece pieceOpp : theirPieces) {
                         if (pieceOpp.getPieceType() == Piece.PieceType.PAWN) {
                             colOpp = pieceOpp.getPiecePosition() % 8;
-                            if (colOpp == 0) {
-                                occupyCol.add(0);
-                                occupyCol.add(1);
-                            } else if (colOpp == 7) {
-                                occupyCol.add(7);
-                                occupyCol.add(6);
-                            } else {
+//                            if (colOpp == 0) {
+//                                occupyCol.add(0);
+//                                occupyCol.add(1);
+//                            } else if (colOpp == 7) {
+//                                occupyCol.add(7);
+//                                occupyCol.add(6);
+//                            } else {
                                 occupyCol.add(colOpp);
                                 occupyCol.add(colOpp + 1);
                                 occupyCol.add(colOpp - 1);
-                            }
+//                            }
                         }
                     }
                     if (!occupyCol.contains(col)) {
                         if (isMidGame(board)) {
                             if (player.getAlliance() == Alliance.BLACK){
-                                if (rank == 1) psBonus += 5;
-                                else if (rank == 2) psBonus += 15;
-                                else if (rank == 3) psBonus += 20;
-                                else if (rank == 4) psBonus += 65;
-                                else if (rank == 5) psBonus += 165;
-                                else if (rank == 6) psBonus += 285;
+                                psBonus += passedPawnMG[rank - 1];
                             }
                             else {
-                                if (rank == 6) psBonus += 5;
-                                else if (rank == 5) psBonus += 15;
-                                else if (rank == 4) psBonus += 20;
-                                else if (rank == 3) psBonus += 65;
-                                else if (rank == 2) psBonus += 165;
-                                else if (rank == 1) psBonus += 285;
+                                psBonus += passedPawnMG[6-rank];
                             }
                         } else {
                             if (player.getAlliance() == Alliance.BLACK){
-                                if (rank == 1) psBonus += 40;
-                                else if (rank == 2) psBonus += 35;
-                                else if (rank == 3) psBonus += 50;
-                                else if (rank == 4) psBonus += 80;
-                                else if (rank == 5) psBonus += 180;
-                                else if (rank == 6) psBonus += 280;
+                                psBonus += passedPawnEG[rank - 1];
                             }
                             else {
-                                if (rank == 6) psBonus += 40;
-                                else if (rank == 5) psBonus += 35;
-                                else if (rank == 4) psBonus += 50;
-                                else if (rank == 3) psBonus += 80;
-                                else if (rank == 2) psBonus += 180;
-                                else if (rank == 1) psBonus += 280;
+                                psBonus += passedPawnEG[6-rank];
                             }
                         }
                     } else {
@@ -488,37 +377,17 @@ public class StandardBoardEvaluator implements BoardEvaluator {
                                             (player.getAlliance() == Alliance.BLACK && rank >= piece1.getPiecePosition() / 8)) {
                                         if (isMidGame(board)) {
                                             if(player.getAlliance() == Alliance.BLACK) {
-                                                if (rank == 1) psBonus += 5;
-                                                else if (rank == 2) psBonus += 15;
-                                                else if (rank == 3) psBonus += 20;
-                                                else if (rank == 4) psBonus += 65;
-                                                else if (rank == 5) psBonus += 165;
-                                                else if (rank == 6) psBonus += 285;
+                                                psBonus += passedPawnMG[rank - 1];
                                             }
                                             else {
-                                                if (rank == 6) psBonus += 5;
-                                                else if (rank == 5) psBonus += 15;
-                                                else if (rank == 4) psBonus += 20;
-                                                else if (rank == 3) psBonus += 65;
-                                                else if (rank == 2) psBonus += 165;
-                                                else if (rank == 1) psBonus += 285;
+                                                psBonus += passedPawnMG[6-rank];
                                             }
                                         } else {
                                             if (player.getAlliance() == Alliance.BLACK){
-                                                if (rank == 1) psBonus += 40;
-                                                else if (rank == 2) psBonus += 35;
-                                                else if (rank == 3) psBonus += 50;
-                                                else if (rank == 4) psBonus += 80;
-                                                else if (rank == 5) psBonus += 180;
-                                                else if (rank == 6) psBonus += 280;
+                                                psBonus += passedPawnEG[rank - 1];
                                             }
                                             else {
-                                                if (rank == 6) psBonus += 40;
-                                                else if (rank == 5) psBonus += 35;
-                                                else if (rank == 4) psBonus += 50;
-                                                else if (rank == 3) psBonus += 80;
-                                                else if (rank == 2) psBonus += 180;
-                                                else if (rank == 1) psBonus += 280;
+                                                psBonus += passedPawnEG[6-rank];
                                             }
                                         }
                                     }

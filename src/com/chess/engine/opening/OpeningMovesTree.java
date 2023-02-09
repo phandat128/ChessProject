@@ -1078,6 +1078,9 @@ public class OpeningMovesTree {
                     Node Nf3_c5_e4_e6 = Nf3_c5_e4.addChild("e6");
                         Node Nf3_c5_e4_e6_d4 = Nf3_c5_e4_e6.addChild("d4");
                 Node Nf3_c5_b3 = Nf3_c5.addChild("b3");
+                    Node Nf3_c5_b3_Nc6 = Nf3_c5_b3.addChild("Nc6");
+                        Node Nf3_c5_b3_Nc6_Bb2 = Nf3_c5_b3_Nc6.addChild("Bb2");
+                            Node Nf3_c5_b3_Nc6_Bb2_Nf6 = Nf3_c5_b3_Nc6_Bb2.addChild("Nf6");
         Node c4 = root.addChild("c4");
             Node c4_Nf6 = c4.addChild("Nf6");
                 Node c4_Nf6_Nc3 = c4_Nf6.addChild("Nc3");
