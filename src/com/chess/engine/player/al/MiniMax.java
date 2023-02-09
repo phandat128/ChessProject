@@ -80,7 +80,7 @@ public class MiniMax implements MoveStrategy{
         }
         bestMoves = abSearch(board);
         oneBestMove = random(bestMoves);
-        System.out.println("chosen move:" + oneBestMove.toString());
+//        System.out.println("chosen move:" + oneBestMove.toString());
         return oneBestMove;
     }
 
@@ -92,7 +92,7 @@ public class MiniMax implements MoveStrategy{
         for(final Move move : board.currentPlayer().getLegalMoves()){
             final MoveTransition moveTransition = board.currentPlayer().makeMove(move);
             if(moveTransition.getMoveStatus().isDone()){
-                System.out.println("Move: " + move.toString());
+//                System.out.println("Move: " + move.toString());
                 currentValue = board.currentPlayer().getAlliance().isWhite() ?
                         min(moveTransition.getTransitionBoard(),this.searchDepth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE) :
                         max(moveTransition.getTransitionBoard(),this.searchDepth - 1, Integer.MIN_VALUE, Integer.MAX_VALUE);
@@ -111,8 +111,8 @@ public class MiniMax implements MoveStrategy{
                 } else if (board.currentPlayer().getAlliance().isBlack() && currentValue == lowestSeenValue) {
                     bestMoves.add(move);
                 }
-                System.out.println("Score: " + currentValue);
-                System.out.println();
+//                System.out.println("Score: " + currentValue);
+//                System.out.println();
             }
         }
         return bestMoves;

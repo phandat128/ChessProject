@@ -1148,7 +1148,11 @@ public class OpeningMovesTree {
                 Node c4_c5_Nf3 = c4_c5.addChild("Nf3");
                     Node c4_c5_Nf3_Nc6 = c4_c5_Nf3.addChild("Nc6");
                         Node c4_c5_Nf3_Nc6_Nc3 = c4_c5_Nf3_Nc6.addChild("Nc3");
+                            Node c4_c5_Nf3_Nc6_Nc3_e6 = c4_c5_Nf3_Nc6_Nc3.addChild("e6");
                         Node c4_c5_Nf3_Nc6_d4 = c4_c5_Nf3_Nc6.addChild("d4");
+                            Node c4_c5_Nf3_Nc6_d4_cxd4 = c4_c5_Nf3_Nc6_d4.addChild("cxd4");
+                                Node c4_c5_Nf3_Nc6_d4_cxd4_Nxd4 = c4_c5_Nf3_Nc6_d4_cxd4.addChild("Nxd4");
+                                    Node c4_c5_Nf3_Nc6_d4_cxd4_Nxd4_Nf6 = c4_c5_Nf3_Nc6_d4_cxd4_Nxd4.addChild("Nf6");
                     Node c4_c5_Nf3_Nf6 = c4_c5_Nf3.addChild("Nf6");
                         Node c4_c5_Nf3_Nf6_Nc3 = c4_c5_Nf3_Nf6.addChild("Nc3");
                         Node c4_c5_Nf3_Nf6_g3 = c4_c5_Nf3_Nf6.addChild("g3");
