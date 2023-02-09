@@ -7,14 +7,14 @@ import java.awt.*;
 public class PromoteFrame extends JFrame{
    public static int promoteChoice = 0;
 
-   public PromoteFrame(JPanel boardPanel) {
+   public PromoteFrame() {
        JFrame choosePiece = new JFrame("Promotion");
        choosePiece.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-       choosePiece.setSize(50, 50);
+       choosePiece.setSize(100, 100);
        JDialog dialog = new JDialog(choosePiece, "Promotion", true);
 
         JPanel mainGUI = new JPanel(new BorderLayout());
-        mainGUI.setBorder(new EmptyBorder(50, 50, 50, 50));
+        mainGUI.setBorder(new EmptyBorder(80, 80, 80, 80));
         mainGUI.add(new JLabel("Choose piece type to promote:"), BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel(new FlowLayout());
@@ -57,7 +57,6 @@ public class PromoteFrame extends JFrame{
 
         dialog.setContentPane(mainGUI);
         dialog.pack();
-        dialog.setLocationRelativeTo(boardPanel);
         dialog.setVisible(true);
    }
 }
