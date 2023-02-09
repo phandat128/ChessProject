@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class StandardBoardEvaluator implements BoardEvaluator {
-     private static final int CHECK_BONUS = 100;
+    private static final int CHECK_BONUS = 100;
     private static final int CHECK_MATE_BONUS = 120000;
 //    private static final int DEPTH_BONUS = 100;
     private static final int CASTLE_BONUS = 1500;
@@ -22,7 +22,8 @@ public class StandardBoardEvaluator implements BoardEvaluator {
 
     private int scorePlayer(final  Board board,
                             final Player player) {
-        return pieceValue(player) + mobility(player) * 4 +
+        if (player == null || player.getOpponent() == null) return 0;
+        return pieceValue(player) * 5 + mobility(player) * 4 +
                 check(player) + checkmate(player)
                 + castled(player) + positionValue(player) * 8 + openingPrincipleBonus(player, board) * 5;
     }

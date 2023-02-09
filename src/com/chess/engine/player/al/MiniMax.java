@@ -34,7 +34,7 @@ public class MiniMax implements MoveStrategy{
         final long startTime = System.currentTimeMillis();
         System.out.println(board.currentPlayer()+ " THINKING with depth = " + this.searchDepth);
 //        int numMoves = board.currentPlayer().getLegalMoves().size();
-        new Counter();
+        Counter.increase();
         Move bestMove = bestMove(board);
         final long executionTime = System.currentTimeMillis() - startTime;
         System.out.println(board.currentPlayer()+ " MOVE with time = " + executionTime);
@@ -49,7 +49,7 @@ public class MiniMax implements MoveStrategy{
         chosenMoveNode = random(currentMoveNode.getChild());
         for (Move move : board.currentPlayer().getLegalMoves()) {
             if (move.toString().equals(chosenMoveNode.getMove())) {
-                new NodeStorage(chosenMoveNode);
+                NodeStorage.store(chosenMoveNode);
                 return move;
             }
         }
@@ -69,7 +69,7 @@ public class MiniMax implements MoveStrategy{
                 Move moveFromOpeningTree = bestOpeningMoves(board);
 
                 if (moveFromOpeningTree == null) {
-                    new Semaphores();
+                    Semaphores.setSemaphore(false);
                 }
                 else {
                     System.out.println("moveFromOpeningTree: " + moveFromOpeningTree);
@@ -117,7 +117,7 @@ public class MiniMax implements MoveStrategy{
     private boolean isQuietScene(Board board) {
         if (board.currentPlayer().isInCheck()) return false;
         for (Piece playerPieces: board.currentPlayer().getActivePieces()) {
-            if (playerPieces.equals(Piece.PieceType.QUEEN) || playerPieces.equals(Piece.PieceType.ROOK)) {
+            if (playerPieces.getPieceType() == Piece.PieceType.QUEEN || playerPieces.getPieceType() == Piece.PieceType.ROOK) {
                 int des = playerPieces.getPiecePosition();
                 for (Move move: board.currentPlayer().getOpponent().getLegalMoves()) {
                     if (move.getDestinationCoordinate() == des)     return false;

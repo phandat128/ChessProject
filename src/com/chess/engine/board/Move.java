@@ -2,6 +2,7 @@ package com.chess.engine.board;
 
 import com.chess.engine.pieces.*;
 import com.chess.engine.board.Board.Builder;
+import com.chess.engine.player.al.StandardBoardEvaluator;
 import com.chess.gui.PromoteFrame;
 
 public abstract class Move {
@@ -10,14 +11,18 @@ public abstract class Move {
     protected final Piece movedPiece;//quân cờ được di chuyển
     protected final int destinationCoordinate;//tọa độ đích
     protected final boolean isFirstMove;
+    protected int priorityOrder;
 
-    public static final Move NULL_MOVE = new NullMove();
+    private static final int ATTACK_MOVE_PRIORITY = 1000;
+    private static final int DEPTH_PRE_CALCULATE = 2;
 
     private Move(final Board board, final Piece movedPiece, final int destinationCoordinate) {
         this.board = board;
         this.movedPiece = movedPiece;
         this.destinationCoordinate = destinationCoordinate;
         this.isFirstMove = movedPiece.isFirstMove();
+        this.priorityOrder = 0;
+//        this.priorityOrder = new StandardBoardEvaluator().evaluate(board, DEPTH_PRE_CALCULATE);
     }
 
     private Move(final Board board, final int destinationCoordinate) {
@@ -25,6 +30,7 @@ public abstract class Move {
         this.destinationCoordinate = destinationCoordinate;
         this.movedPiece = null;
         this.isFirstMove = false;
+        this.priorityOrder = -1;
     }
 
     @Override
@@ -78,6 +84,10 @@ public abstract class Move {
         return null;
     }
 
+    public int getPriorityOrder() {
+        return priorityOrder;
+    }
+
     public Board execute() {
         final Board.Builder builder = new Board.Builder();
         for(final Piece piece : this.board.currentPlayer().getActivePieces()) {
@@ -94,7 +104,8 @@ public abstract class Move {
     }
 
     public static class MajorAttackMove extends AttackMove {
-    	public MajorAttackMove(final Board board, final Piece pieceMoved, final int destinationCoordinate, final Piece pieceAttacked) {
+    	public MajorAttackMove(final Board board, final Piece pieceMoved, final int destinationCoordinate,
+                               final Piece pieceAttacked) {
     		super(board, pieceMoved, destinationCoordinate, pieceAttacked);
     	}
     	
@@ -126,9 +137,11 @@ public abstract class Move {
     }
     public static class AttackMove extends Move { //nước đi tấn công
         final Piece attackedPiece;//quần cờ bị tấn công
-        public AttackMove(final Board board, final Piece movedPiece,final int destinationCoordinate, final Piece attackedPiece) {
+        public AttackMove(final Board board, final Piece movedPiece,final int destinationCoordinate,
+                          final Piece attackedPiece) {
             super(board, movedPiece, destinationCoordinate);
             this.attackedPiece = attackedPiece;
+            this.priorityOrder += ATTACK_MOVE_PRIORITY;
         }
 
         @Override
@@ -183,7 +196,8 @@ public abstract class Move {
     }
 
     public static  class PawnAttackMove extends AttackMove {
-        public PawnAttackMove(final Board board, final Piece movedPiece, final int destinationCoordinate, final Piece attackedPiece) {
+        public PawnAttackMove(final Board board, final Piece movedPiece, final int destinationCoordinate,
+                              final Piece attackedPiece) {
             super(board, movedPiece, destinationCoordinate, attackedPiece);
         }
         
@@ -200,7 +214,8 @@ public abstract class Move {
     }
 
     public static final class PawnEnPassantAttackMove extends AttackMove {
-        public PawnEnPassantAttackMove(final Board board, final Piece movedPiece, final int destinationCoordinate, final Piece attackedPiece) {
+        public PawnEnPassantAttackMove(final Board board, final Piece movedPiece, final int destinationCoordinate,
+                                       final Piece attackedPiece) {
             super(board, movedPiece, destinationCoordinate, attackedPiece);
         }
         
@@ -330,7 +345,8 @@ public abstract class Move {
         protected final Rook castleRook;
         protected final int castleRookStart;
         protected final int castleRookDestination;
-        public CastleMove(final Board board, final Piece movedPiece, final int destinationCoordinate, final Rook castleRook, final int castleRookStart, final int castleRookDestination) {
+        public CastleMove(final Board board, final Piece movedPiece, final int destinationCoordinate,
+                          final Rook castleRook, final int castleRookStart, final int castleRookDestination) {
             super(board, movedPiece, destinationCoordinate);
             this.castleRook =castleRook;
             this.castleRookStart = castleRookStart;
@@ -384,7 +400,8 @@ public abstract class Move {
     }
 
     public static final class KingSideCastleMove extends CastleMove {
-        public KingSideCastleMove(final Board board, final Piece movedPiece, final int destinationCoordinate, final Rook castleRook, final int castleRookStart, final int castleRookDestination) {
+        public KingSideCastleMove(final Board board, final Piece movedPiece, final int destinationCoordinate,
+                                  final Rook castleRook, final int castleRookStart, final int castleRookDestination) {
             super(board, movedPiece, destinationCoordinate, castleRook, castleRookStart, castleRookDestination);
         }
         
@@ -400,7 +417,8 @@ public abstract class Move {
     }
 
     public static final class QueenSideCastleMove extends CastleMove {
-        public QueenSideCastleMove(final Board board, final Piece movedPiece, final int destinationCoordinate, final Rook castleRook, final int castleRookStart, final int castleRookDestination) {
+        public QueenSideCastleMove(final Board board, final Piece movedPiece, final int destinationCoordinate,
+                                   final Rook castleRook, final int castleRookStart, final int castleRookDestination) {
             super(board, movedPiece, destinationCoordinate, castleRook, castleRookStart, castleRookDestination);
         }
         
@@ -447,7 +465,7 @@ public abstract class Move {
                     return move;
                 }
             }
-            return NULL_MOVE;
+            return new NullMove();
         }
 
     }

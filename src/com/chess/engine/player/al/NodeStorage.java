@@ -8,4 +8,7 @@ public class NodeStorage {
     public NodeStorage(Node node) {
         currentNode = node;
     }
+    public static void store(Node node){
+        currentNode = node;
+    }
 }

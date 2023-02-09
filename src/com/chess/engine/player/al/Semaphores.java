@@ -5,4 +5,8 @@ public class Semaphores {
     Semaphores() {
         semaphore = false;
     }
+
+    public static void setSemaphore(boolean semaphore) {
+        Semaphores.semaphore = semaphore;
+    }
 }

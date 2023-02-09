@@ -434,7 +434,7 @@ public class Table extends Observable {
                                    if (NodeStorage.currentNode.getChild().size() != 0) {
                                        for (Node node : NodeStorage.currentNode.getChild()) {
                                            if (Objects.equals(node.getMove(), move.toString())) {
-                                               new NodeStorage(node);
+                                               NodeStorage.store(node);
                                                System.out.println(node.getMove());
                                                break;
                                            }
@@ -496,7 +496,7 @@ public class Table extends Observable {
                 try{
                     highlightLegals(board);
                     final BufferedImage image =
-                            ImageIO.read(new File(defaultPieceImagesPath + board.getTile(this.titleId).getPiece().getPieceAlliance().toString().substring(0,1)+
+                            ImageIO.read(new File(defaultPieceImagesPath + board.getTile(this.titleId).getPiece().getPieceAlliance().toString().charAt(0)+
                                     board.getTile(this.titleId).getPiece().toString()+".png"));
                     add (new JLabel(new ImageIcon(image)) );
                 } catch (IOException e){

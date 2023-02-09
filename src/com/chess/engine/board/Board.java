@@ -72,11 +72,11 @@ public class Board {
     }
 
     private Collection<Move> calculateLegalMove(final Collection<Piece> pieces) {
-        final List<Move> legalMoves = new ArrayList<>();
+        final PriorityQueue<Move> legalMoves = new PriorityQueue<>((move1, move2) -> move2.getPriorityOrder() - move1.getPriorityOrder());
         for (final Piece piece : pieces){
             legalMoves.addAll(piece.calculateLegalMove(this));
         }
-        return legalMoves;
+        return new ArrayList<>(legalMoves);
     }
 
     private static Collection<Piece> calculateActivePiece(final List<Tile> gameBoard, final Alliance alliance) {
