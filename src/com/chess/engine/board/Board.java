@@ -76,6 +76,7 @@ public class Board {
             legalMoves.addAll(piece.calculateLegalMove(this));
         }
         return legalMoves;
+        //Mỗi nước đi sẽ gán thêm 1 trọng số R biểu thị "độ cần thiết" của nước đi, sau đó duyệt danh sách nước theo R giảm dần. Cách tính R cần tìm hiểu thêm về Move Ordering in Chess
     }
 
     private static Collection<Piece> calculateActivePiece(final List<Tile> gameBoard, final Alliance alliance) {

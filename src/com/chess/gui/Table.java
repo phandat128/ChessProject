@@ -4,10 +4,13 @@ import com.chess.engine.board.Board;
 import com.chess.engine.board.BoardUtils;
 import com.chess.engine.board.Move;
 import com.chess.engine.board.Tile;
+import com.chess.engine.opening.Node;
 import com.chess.engine.pieces.Piece;
 import com.chess.engine.player.MoveTransition;
 import com.chess.engine.player.al.MiniMax;
 import com.chess.engine.player.al.MoveStrategy;
+import com.chess.engine.player.al.NodeStorage;
+import com.chess.engine.player.al.Semaphores;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -19,6 +22,7 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -40,7 +44,6 @@ public class Table extends Observable {
     private Tile destinationTile;
     private Piece humanMovedPiece;
     private BoardDirection boardDirection;
-    private Move computerMove;
 
     private boolean highlightLegalMoves;
 
@@ -70,12 +73,11 @@ public class Table extends Observable {
         this.addObserver(new TableGameAIWatcher());
         this.gameSetup = new GameSetup(this.gameFrame, true);
         this.boardDirection = BoardDirection.NORMAL;
-        this.highlightLegalMoves = false;
         this.gameFrame.add(this.takenPiecesPanel, BorderLayout.WEST);
         this.gameFrame.add(this.boardPanel,BorderLayout.CENTER);
         this.gameFrame.add(this.gameHistoryPanel, BorderLayout.EAST);
         this.gameFrame.setVisible(true);
-        this.highlightLegalMoves = false;
+        this.highlightLegalMoves = true;
     }
 
     public static Table get() {
@@ -181,10 +183,12 @@ public class Table extends Observable {
                 thinkTank.execute();
             }
             if (Table.get().getGameBoard().currentPlayer().isInCheckmate()){
-                System.out.println("Game over," + Table.get().getGameBoard().currentPlayer() + "is in checkmate!");
+                PrintWriter out=new PrintWriter(System.out);
+                out.print("Game over," + Table.get().getGameBoard().currentPlayer() + "is in checkmate!");
             }
             if (Table.get().getGameBoard().currentPlayer().isInStalemate()){
-                System.out.println("Game over," + Table.get().getGameBoard().currentPlayer() + "is in stalemate!");
+                PrintWriter out=new PrintWriter(System.out);
+                out.print("Game over," + Table.get().getGameBoard().currentPlayer() + "is in stalemate!");
             }
         }
     }
@@ -193,7 +197,6 @@ public class Table extends Observable {
         this.chessBoard = board;
     }
     public void updateComputerMove(final Move move) {
-        this.computerMove = move;
     }
     private MoveLog getMoveLog() {
         return this.moveLog;
@@ -359,6 +362,18 @@ public class Table extends Observable {
                            if (transition.getMoveStatus().isDone()) {
                                chessBoard = transition.getTransitionBoard();
                                moveLog.addMove(move);
+                               if (Semaphores.semaphore)
+                               {
+                                   if (NodeStorage.currentNode.getChild().size() != 0) {
+                                       for (Node node : NodeStorage.currentNode.getChild()) {
+                                           if (Objects.equals(node.getMove(), move.toString())) {
+                                               new NodeStorage(node);
+                                               System.out.println(node.getMove());
+                                               break;
+                                           }
+                                       }
+                                   }
+                               }
                            }
                            sourceTile = null;
                            destinationTile = null;
@@ -373,7 +388,6 @@ public class Table extends Observable {
                                    Table.get().moveMadeUpdate(PlayerType.HUMAN);
                                }
                                boardPanel.drawBoard(chessBoard);
-
                            }
                        });
                    }

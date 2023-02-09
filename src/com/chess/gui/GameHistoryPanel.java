@@ -74,14 +74,11 @@ public class GameHistoryPanel extends JPanel {
 
         DataModel(){
             this.values = new ArrayList<>();
-
         }
-
         public void clear(){
             this.values.clear();
             setRowCount(0);
         }
-
         @Override
         public int getRowCount(){
             return this.values == null ? 0 : this.values.size();
