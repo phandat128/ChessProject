@@ -134,6 +134,28 @@ public class Pawn extends Piece{
     public Pawn movePiece(final Move move) {
         return new Pawn(move.getDestinationCoordinate(), move.getMovedPiece().getPieceAlliance(),  false);
     }
+    public Piece choosePromotePiece() {
+        int promoteChoice = PromoteFrame.promoteChoice;
+        switch (promoteChoice) {
+            case 1 -> {
+                return new Knight(this.piecePosition, this.pieceAlliance, false);
+            }
+            case 2 -> {
+                return new Bishop(this.piecePosition, this.pieceAlliance, false);
+            }
+            case 3 -> {
+                return new Rook(this.piecePosition, this.pieceAlliance, false);
+            }
+            case 4 -> {
+                return new Queen(this.piecePosition, this.pieceAlliance, false);
+            }
+            default -> {
+                return null;
+            }
+        }
+    }
+
+
 
 
 }
